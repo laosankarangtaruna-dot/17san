@@ -200,17 +200,23 @@
           </div>
           <div class="field">
             <label>Kategori</label>
-            <select id="lomba-kategori">
+            <select id="lomba-kategori" onchange="onLombaKategoriChange()">
               <option value="anak">Anak-anak</option>
               <option value="ibu">Ibu-ibu</option>
               <option value="dewasa">Dewasa / Umum</option>
             </select>
           </div>
-          <div class="field">
-            <label>Kelompok / Kelas (opsional)</label>
+          <div id="lomba-kelas-wrap" style="display:none;">
+            <label style="display:block;font-size:12px;font-weight:600;color:var(--abu);margin-bottom:4px;">Kelas (Anak-anak)</label>
+            <div id="lomba-kelas-list"></div>
+            <button type="button" class="btn btn-outline-sm" style="width:100%;margin-top:4px;" onclick="addKelasInput()">➕ Tambah Kelas</button>
+            <p style="font-size:11px;color:var(--abu);margin:6px 0 0;">Peserta anak akan memilih salah satu kelas saat didaftar. Tiap kelas punya penyisihan sendiri, juaranya otomatis maju ke final.</p>
+          </div>
+          <div class="field" id="lomba-kelompok-wrap" style="margin-top:10px;">
+            <label>Kelompok (opsional)</label>
             <input type="text" id="lomba-kelompok" placeholder="mis. Kelas 1-3 SD, kosongkan jika tidak ada">
           </div>
-          <button class="btn btn-primary" onclick="saveLomba()">Simpan Cabang Lomba</button>
+          <button class="btn btn-primary" style="margin-top:6px;" onclick="saveLomba()">Simpan Cabang Lomba</button>
         </div>
       </div>
 
@@ -235,6 +241,10 @@
           <div class="field">
             <label>Nama Peserta</label>
             <input type="text" id="peserta-nama" placeholder="Nama lengkap">
+          </div>
+          <div class="field" id="peserta-kelas-wrap" style="display:none;">
+            <label>Kelas</label>
+            <select id="peserta-kelas"></select>
           </div>
           <p style="font-size:11.5px;color:var(--abu);margin:0 0 10px;">Peserta otomatis terdaftar di semua cabang lomba kategori ini. Kalau ada lomba tertentu yang tidak diikuti, atur di tab <b>Lomba</b>.</p>
           <button class="btn btn-primary" onclick="savePeserta()">Simpan Peserta</button>
@@ -452,6 +462,15 @@ function toast(msg){
 const KATEGORI_LABEL = {anak:'Anak-anak', ibu:'Ibu-ibu', dewasa:'Dewasa / Umum'};
 const KATEGORI_CLASS = {anak:'anak', ibu:'ibu', dewasa:'dewasa'};
 
+/* Daftar kelas anak yang pernah dibuat (global, dipakai saat daftar peserta) */
+function getAllKelasAnak(){
+  const set = new Set();
+  (data.cabangLomba||[]).forEach(l=>{
+    if(l.kategori==='anak' && Array.isArray(l.kelas)) l.kelas.forEach(k=>{ if(k) set.add(k); });
+  });
+  return Array.from(set);
+}
+
 /* ============ NAV ============ */
 let currentTab = 'beranda';
 function switchTab(name){
@@ -474,6 +493,7 @@ function toggleForm(id){
   const icon = document.getElementById(id+'-icon');
   const open = wrap.classList.toggle('open');
   icon.style.transform = open ? 'rotate(45deg)' : 'rotate(0)';
+  if(open && id==='form-lomba') onLombaKategoriChange();
 }
 
 /* ============ RENDER ALL ============ */
@@ -518,7 +538,14 @@ function isExcluded(lombaId, pesertaId){
 function getPesertaForLomba(lombaId){
   const lomba = data.cabangLomba.find(l=>l.id===lombaId);
   if(!lomba) return [];
-  return data.peserta.filter(p=>p.kategori===lomba.kategori && !isExcluded(lombaId, p.id));
+  return data.peserta.filter(p=>{
+    if(p.kategori!==lomba.kategori) return false;
+    if(isExcluded(lombaId, p.id)) return false;
+    if(lomba.kategori==='anak' && Array.isArray(lomba.kelas) && lomba.kelas.length>0){
+      return lomba.kelas.includes(p.kelas||'');
+    }
+    return true;
+  });
 }
 function toggleLombaPesertaPanel(lombaId){
   openLombaPeserta = (openLombaPeserta===lombaId) ? null : lombaId;
@@ -538,13 +565,41 @@ function saveLomba(){
   const kategori = document.getElementById('lomba-kategori').value;
   const kelompok = document.getElementById('lomba-kelompok').value.trim();
   if(!nama){ toast('Nama cabang lomba wajib diisi'); return; }
-  data.cabangLomba.push({ id: uid(), nama, kategori, kelompok });
+  let kelas = null;
+  if(kategori==='anak'){
+    kelas = readKelasInputs();
+  }
+  const lomba = { id: uid(), nama, kategori, kelompok };
+  if(kelas) lomba.kelas = kelas;
+  data.cabangLomba.push(lomba);
   saveData();
   document.getElementById('lomba-nama').value='';
   document.getElementById('lomba-kelompok').value='';
+  document.getElementById('lomba-kelas-list').innerHTML='';
+  if(kategori==='anak') addKelasInput();
   toggleForm('form-lomba');
   toast('Cabang lomba tersimpan');
   renderAll();
+}
+function onLombaKategoriChange(){
+  const k = document.getElementById('lomba-kategori').value;
+  const isAnak = k==='anak';
+  document.getElementById('lomba-kelas-wrap').style.display = isAnak ? 'block':'none';
+  document.getElementById('lomba-kelompok-wrap').style.display = isAnak ? 'none':'block';
+  if(isAnak && document.getElementById('lomba-kelas-list').children.length===0) addKelasInput();
+}
+function addKelasInput(val){
+  const list = document.getElementById('lomba-kelas-list');
+  const row = document.createElement('div');
+  row.style.cssText='display:flex;gap:6px;margin-bottom:6px;';
+  row.innerHTML = `<input type="text" class="kelas-input" placeholder="mis. TK A / SD 1-3" value="${val||''}">
+    <button type="button" class="icon-btn del" onclick="this.parentNode.remove()">✕</button>`;
+  list.appendChild(row);
+}
+function readKelasInputs(){
+  const vals = Array.from(document.querySelectorAll('#lomba-kelas-list .kelas-input'))
+    .map(i=>i.value.trim()).filter(Boolean);
+  return vals.length ? vals : null;
 }
 function deleteLomba(id){
   if(!confirm('Hapus cabang lomba ini?')) return;
@@ -578,7 +633,7 @@ function renderLombaList(){
         <div>
           <div class="item-name">${esc(l.nama)}</div>
           <div class="item-sub">${pesertaLomba.length} dari ${kategoriPeserta.length} peserta ${KATEGORI_LABEL[l.kategori].toLowerCase()} ikut</div>
-          <span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span>
+          <span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span>${l.kelas? ' <span class="badge anak">Kelas: '+esc(l.kelas.join(', '))+'</span>':''}
         </div>
         <div class="item-actions">
           <button class="icon-btn del" onclick="deleteLomba('${l.id}')">🗑️</button>
@@ -611,15 +666,30 @@ function switchPesertaTab(kat){
   });
   const titleMap = {anak:'Daftarkan Peserta Anak', dewasa:'Daftarkan Peserta Dewasa', ibu:'Daftarkan Peserta Ibu'};
   document.getElementById('form-peserta-title').textContent = titleMap[kat];
+  const kelasWrap = document.getElementById('peserta-kelas-wrap');
+  const kelasSel = document.getElementById('peserta-kelas');
+  if(kat==='anak'){
+    kelasWrap.style.display='block';
+    const kelas = getAllKelasAnak();
+    kelasSel.innerHTML = '<option value="">— tanpa kelas —</option>' + kelas.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+  } else {
+    kelasWrap.style.display='none';
+    kelasSel.value='';
+  }
   renderPeserta();
 }
 function savePeserta(){
   const nama = document.getElementById('peserta-nama').value.trim();
   const kategori = pesertaKategoriTab;
   if(!nama){ toast('Nama peserta wajib diisi'); return; }
-  data.peserta.push({ id: uid(), nama, kategori });
+  const entry = { id: uid(), nama, kategori };
+  if(kategori==='anak'){
+    entry.kelas = document.getElementById('peserta-kelas').value;
+  }
+  data.peserta.push(entry);
   saveData();
   document.getElementById('peserta-nama').value='';
+  if(kategori==='anak') document.getElementById('peserta-kelas').value='';
   toggleForm('form-peserta');
   toast('Peserta tersimpan, otomatis ikut semua lomba kategori ini');
   renderAll();
@@ -656,7 +726,7 @@ function renderPeserta(){
         <div>
           <div class="item-name">${esc(p.nama)}</div>
           <div class="item-sub">${totalLombaKategori===0? 'Belum ada cabang lomba kategori ini' : `Ikut ${ikutCount} dari ${totalLombaKategori} lomba`}</div>
-          <span class="badge ${KATEGORI_CLASS[p.kategori]}">${KATEGORI_LABEL[p.kategori]}</span>
+          <span class="badge ${KATEGORI_CLASS[p.kategori]}">${KATEGORI_LABEL[p.kategori]}</span>${p.kelas? ' <span class="badge anak">'+esc(p.kelas)+'</span>':''}
         </div>
         <div class="item-actions">
           <button class="icon-btn del" onclick="deletePeserta('${p.id}')">🗑️</button>
@@ -777,23 +847,75 @@ function renderJuara(){
         <div style="font-size:12px;color:var(--abu);">Belum ada peserta terdaftar di lomba ini.</div>
       </div>`;
     }
+    const header = `<h4>${esc(l.nama)}</h4><div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span></div>`;
+
+    /* Lomba anak berkelas -> penyisihan per kelas + final otomatis */
+    if(l.kategori==='anak' && Array.isArray(l.kelas) && l.kelas.length>0){
+      const kelasPesertaMap = {};
+      l.kelas.forEach(kls=>{ kelasPesertaMap[kls] = peserta.filter(p=> (p.kelas||'')===kls); });
+      if(!j.kelas) j.kelas = {};
+      let html = `<div class="juara-card">${header}<div style="font-size:11.5px;font-weight:700;color:var(--merah-tua);margin:6px 0 4px;">🎯 Penyisihan per Kelas</div>`;
+      l.kelas.forEach(kls=>{
+        const kp = kelasPesertaMap[kls];
+        const kj = j.kelas[kls] || {};
+        html += `<div style="background:#FCF6EF;border:1px solid var(--garis);border-radius:10px;padding:8px;margin-bottom:8px;">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px;">🏫 Kelas ${esc(kls)} (${kp.length} peserta)</div>`;
+        if(kp.length===0){
+          html += `<div style="font-size:11.5px;color:var(--abu);">Belum ada peserta kelas ini.</div>`;
+        } else {
+          const opts = (sel)=> `<option value="">-- pilih --</option>` + kp.map(p=>`<option value="${p.id}" ${sel===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
+          html += `<div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1','${esc(kls)}',this.value)">${opts(kj.juara1)}</select></div>
+                   <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2','${esc(kls)}',this.value)">${opts(kj.juara2)}</select></div>
+                   <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3','${esc(kls)}',this.value)">${opts(kj.juara3)}</select></div>`;
+        }
+        html += `</div>`;
+      });
+      /* Final otomatis dari juara1 tiap kelas (lalu 2,3) */
+      const finalists = [];
+      l.kelas.forEach(kls=>{ const kj=j.kelas[kls]||{}; if(kj.juara1) finalists.push(kj.juara1); });
+      l.kelas.forEach(kls=>{ const kj=j.kelas[kls]||{}; if(kj.juara2) finalists.push(kj.juara2); });
+      l.kelas.forEach(kls=>{ const kj=j.kelas[kls]||{}; if(kj.juara3) finalists.push(kj.juara3); });
+      const finalPeserta = finalists.map(id=> data.peserta.find(p=>p.id===id)).filter(Boolean);
+      const fj = j.final || {};
+      const fopts = (sel)=> `<option value="">-- pilih --</option>` + finalPeserta.map(p=>`<option value="${p.id}" ${sel===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
+      html += `<div style="font-size:11.5px;font-weight:700;color:var(--emas);margin:8px 0 4px;">🏆 FINAL (otomatis dari juara tiap kelas)</div>`;
+      if(finalPeserta.length===0){
+        html += `<div style="font-size:11.5px;color:var(--abu);">Isi juara penyisihan tiap kelas dulu, final terisi otomatis.</div>`;
+      } else {
+        html += `<div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1','__final__',this.value)">${fopts(fj.juara1)}</select></div>
+                 <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2','__final__',this.value)">${fopts(fj.juara2)}</select></div>
+                 <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3','__final__',this.value)">${fopts(fj.juara3)}</select></div>`;
+      }
+      html += `<div class="saved-tag" id="saved-${l.id}">✓ Tersimpan</div></div>`;
+      return html;
+    }
+
+    /* Lomba tanpa kelas / dewasa / ibu -> langsung juara 1/2/3 */
     const options = (selected)=> `<option value="">-- pilih peserta --</option>` + peserta.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
     return `<div class="juara-card">
-      <h4>${esc(l.nama)}</h4>
-      <div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span></div>
-      <div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1',this.value)">${options(j.juara1)}</select></div>
-      <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2',this.value)">${options(j.juara2)}</select></div>
-      <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3',this.value)">${options(j.juara3)}</select></div>
+      ${header}
+      <div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1',null,this.value)">${options(j.juara1)}</select></div>
+      <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2',null,this.value)">${options(j.juara2)}</select></div>
+      <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3',null,this.value)">${options(j.juara3)}</select></div>
       <div class="saved-tag" id="saved-${l.id}">✓ Tersimpan</div>
     </div>`;
   }).join('');
 }
-function setJuara(lombaId, posisi, pesertaId){
+function setJuara(lombaId, posisi, kelas, pesertaId){
   if(!data.juara[lombaId]) data.juara[lombaId] = {};
-  data.juara[lombaId][posisi] = pesertaId || null;
+  const j = data.juara[lombaId];
+  if(kelas==='__final__'){
+    if(!j.final) j.final = {};
+    j.final[posisi] = pesertaId || null;
+  } else if(kelas){
+    if(!j.kelas) j.kelas = {};
+    if(!j.kelas[kelas]) j.kelas[kelas] = {};
+    j.kelas[kelas][posisi] = pesertaId || null;
+  } else {
+    j[posisi] = pesertaId || null;
+  }
   saveData();
-  const tag = document.getElementById('saved-'+lombaId);
-  if(tag){ tag.style.display='block'; setTimeout(()=>tag.style.display='none', 1500); }
+  renderAll();
 }
 
 /* ============ HADIAH ============ */
@@ -806,7 +928,12 @@ function hitungTotalHadiahLomba(lomba){
   if(lomba.kategori === 'anak'){
     const jumlahPeserta = getPesertaForLomba(lomba.id).length;
     const jd = data.juara[lomba.id] || {};
-    const juaraAssigned = ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
+    let juaraAssigned;
+    if(Array.isArray(lomba.kelas) && lomba.kelas.length>0){
+      juaraAssigned = ['juara1','juara2','juara3'].filter(pos=> jd.final && jd.final[pos]);
+    } else {
+      juaraAssigned = ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
+    }
     const nonJuaraCount = Math.max(0, jumlahPeserta - juaraAssigned.length);
     let total = nonJuaraCount * (Number(g.anakPartisipasi)||0);
     juaraAssigned.forEach(pos=>{
@@ -895,7 +1022,9 @@ function renderHadiah(){
     if(l.kategori === 'anak'){
       const jumlahPeserta = getPesertaForLomba(l.id).length;
       const jd = data.juara[l.id] || {};
-      const juaraAssigned = ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
+      const juaraAssigned = (Array.isArray(l.kelas) && l.kelas.length>0)
+        ? ['juara1','juara2','juara3'].filter(pos=> jd.final && jd.final[pos])
+        : ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
       const nonJuaraCount = Math.max(0, jumlahPeserta - juaraAssigned.length);
       const parts = [`${nonJuaraCount} non-juara × ${rupiah(g.anakPartisipasi||0)}`];
       juaraAssigned.forEach(pos=>{
@@ -972,6 +1101,7 @@ function esc(s){
 
 /* ============ INIT ============ */
 document.getElementById('kas-tanggal').valueAsDate = new Date();
+switchPesertaTab('anak');
 renderAll();
 
 (async function initSync(){
