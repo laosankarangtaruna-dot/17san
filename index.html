@@ -174,7 +174,8 @@
 
       <div class="section-title">💾 Cadangan Data</div>
       <div class="card">
-        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data tersimpan online di <b>Supabase</b> (otomatis tersinkron) dan di perangkat ini. Unduh cadangan secara berkala agar aman.</p>
+        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data tersimpan online di 
+<b>Supabase</b> (otomatis tersinkron) dan di perangkat ini. Unduh cadangan secara berkala agar aman.</p>
         <div style="font-size:12px;margin-bottom:10px;">Status: <span id="sync-status" style="font-weight:700;color:var(--abu);">⏳ Menyinkron…</span></div>
         <div class="backup-row">
           <button class="btn btn-ghost" onclick="exportData()">⬇️ Ekspor JSON</button>
@@ -362,12 +363,12 @@
 /* ============ SUPABASE CONFIG ============ */
 const SUPABASE_URL = 'https://tsbzxrszzdfwunopityg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzYnp4cnN6emRmd3Vub3BpdHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODUwMjMsImV4cCI6MjEwMDA2MTAyM30.oR0e8iyZIuI1l0pnjAznGWzMwaBZ2KyalMcdDSJqUFw';
-let supabase = null;
+let sbClient = null;
 try{
   if(window.supabase && window.supabase.createClient){
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
-}catch(e){ console.warn('Supabase init failed, app runs in offline mode', e); }
+}catch(e){ console.warn('sbClient init failed, app runs in offline mode', e); }
 const DATA_ROW_ID = 'main';
 
 /* ============ DATA LAYER ============ */
@@ -397,36 +398,36 @@ function saveData(){
   syncToSupabase();
 }
 async function syncToSupabase(){
-  if(!supabase) return;
+  if(!sbClient) return;
   try{
-    const { error } = await supabase
+    const { error } = await sbClient
       .from('lomba_data')
       .upsert({ id: DATA_ROW_ID, payload: data, updated_at: new Date().toISOString() });
     if(!error){ online = true; }
-    else { console.warn('Supabase upsert error', error); }
+    else { console.warn('sbClient upsert error', error); }
     const st = document.getElementById('sync-status');
     if(st){
       if(online){ st.textContent = '✅ Tersimpan online'; st.style.color = 'var(--hijau)'; }
       else { st.textContent = '⚠️ Offline (lokal)'; st.style.color = 'var(--merah)'; }
     }
-  }catch(e){ console.warn('Supabase sync failed', e); }
+  }catch(e){ console.warn('sbClient sync failed', e); }
 }
 async function loadFromSupabase(){
-  if(!supabase) return false;
+  if(!sbClient) return false;
   try{
-    const { data: row, error } = await supabase
+    const { data: row, error } = await sbClient
       .from('lomba_data')
       .select('payload')
       .eq('id', DATA_ROW_ID)
       .maybeSingle();
-    if(error){ console.warn('Supabase load error', error); return false; }
+    if(error){ console.warn('sbClient load error', error); return false; }
     if(row && row.payload){
       data = normalizeLoaded(row.payload);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       online = true;
       return true;
     }
-  }catch(e){ console.warn('Supabase load failed', e); }
+  }catch(e){ console.warn('sbClient load failed', e); }
   return false;
 }
 function normalizeLoaded(d){
@@ -986,3 +987,5 @@ renderAll();
 </script>
 </body>
 </html>
+
+
