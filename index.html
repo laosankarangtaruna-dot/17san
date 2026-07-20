@@ -362,7 +362,12 @@
 /* ============ SUPABASE CONFIG ============ */
 const SUPABASE_URL = 'https://tsbzxrszzdfwunopityg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzYnp4cnN6emRmd3Vub3BpdHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODUwMjMsImV4cCI6MjEwMDA2MTAyM30.oR0e8iyZIuI1l0pnjAznGWzMwaBZ2KyalMcdDSJqUFw';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase = null;
+try{
+  if(window.supabase && window.supabase.createClient){
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+}catch(e){ console.warn('Supabase init failed, app runs in offline mode', e); }
 const DATA_ROW_ID = 'main';
 
 /* ============ DATA LAYER ============ */
@@ -392,6 +397,7 @@ function saveData(){
   syncToSupabase();
 }
 async function syncToSupabase(){
+  if(!supabase) return;
   try{
     const { error } = await supabase
       .from('lomba_data')
@@ -406,6 +412,7 @@ async function syncToSupabase(){
   }catch(e){ console.warn('Supabase sync failed', e); }
 }
 async function loadFromSupabase(){
+  if(!supabase) return false;
   try{
     const { data: row, error } = await supabase
       .from('lomba_data')
