@@ -406,12 +406,6 @@ function loadData(){
     }
   }catch(e){}
   return { cabangLomba: seedCabangLomba(), peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
-<<<<<<< HEAD
-}
-  }catch(e){}
-  return { cabangLomba: seedCabangLomba(), peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
-=======
->>>>>>> 43ab1bf8a3d3e1dea98349366a96925660e4c385
 }
 function saveData(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
