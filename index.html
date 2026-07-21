@@ -407,6 +407,18 @@ function saveData(){
     })
     .catch(e=>{ online = false; console.warn('Supabase save failed', e); updateSyncStatus(); });
 }
+function saveDataAndRender(){
+  saveLocal();
+  renderAll();
+  if(!sbClient) return;
+  sbClient.from('lomba_data').upsert({ id: DATA_ROW_ID, payload: data, updated_at: new Date().toISOString() })
+    .then(({ error })=>{
+      if(error){ online = false; console.warn('Supabase upsert error', error); }
+      else { online = true; }
+      updateSyncStatus();
+    })
+    .catch(e=>{ online = false; console.warn('Supabase upsert failed', e); updateSyncStatus(); });
+}
 function normalizeData(){
   if(!data.hadiahConfig) data.hadiahConfig = {};
   if(!data.hadiahGlobal) data.hadiahGlobal = defaultHadiahGlobal();
@@ -514,7 +526,7 @@ function togglePesertaLomba(lombaId, pesertaId, checked){
   const idx = arr.indexOf(pesertaId);
   if(checked){ if(idx>=0) arr.splice(idx,1); }
   else { if(idx<0) arr.push(pesertaId); }
-  saveData();
+  saveDataAndRender();
   renderAll();
 }
 function saveLomba(){
@@ -523,7 +535,7 @@ function saveLomba(){
   const kelompok = document.getElementById('lomba-kelompok').value.trim();
   if(!nama){ toast('Nama cabang lomba wajib diisi'); return; }
   data.cabangLomba.push({ id: uid(), nama, kategori, kelompok });
-  saveData();
+  saveDataAndRender();
   document.getElementById('lomba-nama').value='';
   document.getElementById('lomba-kelompok').value='';
   toggleForm('form-lomba');
@@ -617,7 +629,7 @@ function savePeserta(){
     entry.kelas = document.getElementById('peserta-kelas').value.trim();
   }
   data.peserta.push(entry);
-  saveData();
+  saveDataAndRender();
   document.getElementById('peserta-nama').value='';
   if(pesertaKategoriTab === 'anak') document.getElementById('peserta-kelas').value='';
   toast('Peserta tersimpan, otomatis ikut semua lomba kategori ini');
@@ -705,7 +717,7 @@ function saveKas(){
     entry.keterangan = document.getElementById('kas-keterangan').value.trim() || 'Pengeluaran';
   }
   data.transaksi.push(entry);
-  saveData();
+  saveDataAndRender();
   document.getElementById('kas-jumlah').value='';
   document.getElementById('kas-nama').value='';
   document.getElementById('kas-keterangan').value='';
@@ -807,7 +819,7 @@ function renderJuara(){
 function setJuara(lombaId, posisi, pesertaId){
   if(!data.juara[lombaId]) data.juara[lombaId] = {};
   data.juara[lombaId][posisi] = pesertaId || null;
-  saveData();
+  saveDataAndRender();
   const tag = document.getElementById('saved-'+lombaId);
   if(tag){ tag.style.display='block'; setTimeout(()=>tag.style.display='none', 1500); }
 }
@@ -847,7 +859,7 @@ function computeHadiahTotals(){
 function setHadiahGlobal(field, value){
   if(!data.hadiahGlobal) data.hadiahGlobal = defaultHadiahGlobal();
   data.hadiahGlobal[field] = Number(value)||0;
-  saveData();
+  saveDataAndRender();
   renderHadiah();
   renderBeranda();
 }
@@ -868,7 +880,7 @@ function catatHadiahKeKas(lombaId){
     const tx = data.transaksi.find(t=>t.id===cfg.pengeluaranId);
     if(tx){
       tx.jumlah = total;
-      saveData();
+      saveDataAndRender();
       toast('Jumlah pengeluaran di Iuran diperbarui');
       renderAll();
       return;
@@ -877,7 +889,7 @@ function catatHadiahKeKas(lombaId){
   const id = uid();
   data.transaksi.push({ id, tipe:'keluar', tanggal: new Date().toISOString().slice(0,10), keterangan: 'Hadiah Lomba '+lomba.nama, jumlah: total });
   cfg.pengeluaranId = id;
-  saveData();
+  saveDataAndRender();
   toast('Dicatat sebagai pengeluaran di Iuran');
   renderAll();
 }
@@ -964,7 +976,7 @@ function importData(e){
       if(!data.hadiahConfig) data.hadiahConfig = {};
       if(!data.hadiahGlobal) data.hadiahGlobal = defaultHadiahGlobal();
       if(!data.lombaExclusions) data.lombaExclusions = {};
-      saveData();
+      saveDataAndRender();
       toast('Data berhasil diimpor');
       renderAll();
     }catch(err){ toast('Gagal membaca file'); }
@@ -976,7 +988,7 @@ function resetAllData(){
   if(!confirm('Yakin hapus SEMUA data (peserta, lomba, kas, juara)? Tindakan ini tidak bisa dibatalkan.')) return;
   if(!confirm('Konfirmasi sekali lagi: hapus semua data sekarang?')) return;
   data = { cabangLomba: [], peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
-  saveData();
+  saveDataAndRender();
   toast('Semua data dihapus');
   renderAll();
 }
@@ -1007,7 +1019,7 @@ renderAll();
       online = true;
       renderAll();
     } else {
-      saveData();
+      saveDataAndRender();
     }
   }catch(e){ console.warn('Supabase init failed', e); }
   updateSyncStatus();
