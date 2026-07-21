@@ -236,11 +236,7 @@
           </div>
           <div class="field" id="peserta-kelas-wrap" style="display:none;">
             <label>Kelas</label>
-            <input type="text" id="peserta-kelas" placeholder="mis. TK, Kelas 1, Kelas 4" list="kelas-suggest">
-            <datalist id="kelas-suggest">
-              <option value="TK/PAUD"><option value="Kelas 1"><option value="Kelas 2"><option value="Kelas 3">
-              <option value="Kelas 4"><option value="Kelas 5"><option value="Kelas 6">
-            </datalist>
+            <input type="text" id="peserta-kelas" placeholder="mis. TK, Kelas 1, Kelas 4">
           </div>
           <p style="font-size:11.5px;color:var(--abu);margin:0 0 10px;">Peserta otomatis terdaftar di semua cabang lomba kategori ini. Kalau ada lomba tertentu yang tidak diikuti, atur di tab <b>Lomba</b>.</p>
           <button class="btn btn-primary" onclick="savePeserta()">Simpan Peserta</button>
@@ -376,10 +372,10 @@ function defaultHadiahGlobal(){
 }
 function seedCabangLomba(){
   return [
-    { id: uid(), nama:'Makan Kerupuk', kategori:'anak', kelas:['A','B','C','D'] },
-    { id: uid(), nama:'Jalan Silang', kategori:'anak', kelas:['A','B','C','D'] },
-    { id: uid(), nama:'Estafet Tepung', kategori:'anak', kelas:['A','B','C','D'] },
-    { id: uid(), nama:'Pecah Air', kategori:'anak', kelas:['A','B','C','D'] },
+    { id: uid(), nama:'Makan Kerupuk', kategori:'anak', kelompok:'' },
+    { id: uid(), nama:'Jalan Silang', kategori:'anak', kelompok:'' },
+    { id: uid(), nama:'Estafet Tepung', kategori:'anak', kelompok:'' },
+    { id: uid(), nama:'Pecah Air', kategori:'anak', kelompok:'' },
     { id: uid(), nama:'Voli', kategori:'dewasa', kelompok:'' },
     { id: uid(), nama:'Estafet Tepung', kategori:'dewasa', kelompok:'' },
     { id: uid(), nama:'Jalan Silang', kategori:'ibu', kelompok:'' },
@@ -421,9 +417,6 @@ function normalizeData(){
   if(!data.transaksi) data.transaksi = [];
   data.peserta.forEach(p=>{
     if(p.kategori==='anak' && !p.kelas) p.kelas = '';
-  });
-  data.cabangLomba.forEach(l=>{
-    if(l.kategori==='anak' && !Array.isArray(l.kelas)) l.kelas = ['A','B','C','D'];
   });
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -609,21 +602,12 @@ function switchPesertaTab(kat){
   const kelasSel = document.getElementById('peserta-kelas');
   if(kat==='anak'){
     kelasWrap.style.display='block';
-    const kelasList = getAllKelasAnak();
-    kelasSel.innerHTML = '<option value="">— tanpa kelas —</option>' + kelasList.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
   } else {
     kelasWrap.style.display='none';
     kelasSel.value='';
   }
   pesertaKelasFilter = 'semua';
   renderPeserta();
-}
-function getAllKelasAnak(){
-  const set = new Set();
-  (data.cabangLomba||[]).forEach(l=>{
-    if(l.kategori==='anak' && Array.isArray(l.kelas)) l.kelas.forEach(k=>{ if(k) set.add(k); });
-  });
-  return Array.from(set);
 }
 function savePeserta(){
   const nama = document.getElementById('peserta-nama').value.trim();
@@ -1004,6 +988,7 @@ function esc(s){
 
 /* ============ INIT ============ */
 document.getElementById('kas-tanggal').valueAsDate = new Date();
+document.getElementById('peserta-kelas-wrap').style.display = 'block';
 renderAll();
 
 (async function(){
