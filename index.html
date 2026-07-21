@@ -372,18 +372,6 @@ function defaultHadiahGlobal(){
 }
 function seedCabangLomba(){
   return [
-    { id: uid(), nama: 'Makan Kerupuk', kategori: 'anak', kelompok: '' },
-    { id: uid(), nama: 'Jalan Silang', kategori: 'anak', kelompok: '' },
-    { id: uid(), nama: 'Estafet Tepung', kategori: 'anak', kelompok: '' },
-    { id: uid(), nama: 'Pecah Air', kategori: 'anak', kelompok: '' },
-    { id: uid(), nama: 'Voli', kategori: 'dewasa', kelompok: '' },
-    { id: uid(), nama: 'Estafet Tepung', kategori: 'dewasa', kelompok: '' },
-    { id: uid(), nama: 'Jalan Silang', kategori: 'ibu', kelompok: '' },
-    { id: uid(), nama: 'Estafet Tepung', kategori: 'ibu', kelompok: '' },
-  ];
-}
-function seedCabangLomba(){
-  return [
     { id: uid(), nama:'Makan Kerupuk', kategori:'anak', kelas:['A','B','C','D'] },
     { id: uid(), nama:'Jalan Silang', kategori:'anak', kelas:['A','B','C','D'] },
     { id: uid(), nama:'Estafet Tepung', kategori:'anak', kelas:['A','B','C','D'] },
@@ -409,6 +397,14 @@ function loadData(){
 }
 function saveData(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  if(!sbClient) return;
+  sbClient.from('lomba_data').upsert({ id: DATA_ROW_ID, payload: data, updated_at: new Date().toISOString() })
+    .then(({ error })=>{
+      if(error){ online = false; console.warn('Supabase save error', error); }
+      else { online = true; }
+      updateSyncStatus();
+    })
+    .catch(e=>{ online = false; console.warn('Supabase save failed', e); updateSyncStatus(); });
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function rupiah(n){ return 'Rp' + (Number(n)||0).toLocaleString('id-ID'); }
@@ -417,6 +413,12 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show');
   clearTimeout(window._toastT);
   window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function updateSyncStatus(){
+  const st = document.getElementById('sync-status');
+  if(!st) return;
+  st.textContent = online ? '✅ Tersimpan online' : '⚠️ Offline (lokal)';
+  st.style.color = online ? 'var(--hijau)' : 'var(--merah)';
 }
 const KATEGORI_LABEL = {anak:'Anak-anak', ibu:'Ibu-ibu', dewasa:'Dewasa / Umum'};
 const KATEGORI_CLASS = {anak:'anak', ibu:'ibu', dewasa:'dewasa'};
@@ -450,7 +452,6 @@ function renderAll(){
   renderBeranda();
   renderLombaFilterChips();
   renderLombaList();
-  renderPesertaSubtabs();
   renderPeserta();
   renderKas();
   renderJuaraFilterChips();
@@ -575,22 +576,6 @@ function renderLombaPesertaPanel(l, kategoriPeserta){
 
 /* ============ PESERTA ============ */
 let pesertaKategoriTab = 'anak';
-let pesertaKelasFilter = 'semua';
-function switchPesertaKategori(k){
-  pesertaKategoriTab = k;
-  pesertaKelasFilter = 'semua';
-  renderPesertaSubtabs();
-  renderPeserta();
-}
-function renderPesertaSubtabs(){
-  const wrap = document.getElementById('peserta-subtabs');
-  const cats = [['anak','🎈 Anak-anak'],['ibu','👩 Ibu-ibu'],['dewasa','🧑 Dewasa']];
-  wrap.innerHTML = cats.map(([k,l])=>`<button class="${pesertaKategoriTab===k?'active':''}" onclick="switchPesertaKategori('${k}')">${l}</button>`).join('');
-  const title = document.getElementById('form-peserta-title');
-  if(title) title.textContent = 'Daftarkan Peserta ' + KATEGORI_LABEL[pesertaKategoriTab];
-  const kelasWrap = document.getElementById('peserta-kelas-wrap');
-  if(kelasWrap) kelasWrap.style.display = (pesertaKategoriTab==='anak') ? 'block' : 'none';
-}
 function savePeserta(){
   const nama = document.getElementById('peserta-nama').value.trim();
   if(!nama){ toast('Nama peserta wajib diisi'); return; }
@@ -971,6 +956,27 @@ function esc(s){
 /* ============ INIT ============ */
 document.getElementById('kas-tanggal').valueAsDate = new Date();
 renderAll();
+
+(async function(){
+  if(!sbClient){ updateSyncStatus(); return; }
+  try{
+    const { data: row, error } = await sbClient
+      .from('lomba_data')
+      .select('payload')
+      .eq('id', DATA_ROW_ID)
+      .maybeSingle();
+    if(error){ console.warn('Supabase load error', error); }
+    if(row && row.payload){
+      data = row.payload;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      online = true;
+      renderAll();
+    } else {
+      saveData();
+    }
+  }catch(e){ console.warn('Supabase init failed', e); }
+  updateSyncStatus();
+})();
 </script>
 </body>
 </html>
