@@ -102,7 +102,7 @@
   .amount.keluar{color:var(--merah);}
 
   .tx-toggle{display:flex;background:#F5EFE7;border-radius:12px;padding:4px;margin-bottom:14px;}
-  .tx-toggle button{flex:1;padding:9px;border:none;background:transparent;border-radius:9px;font-weight:700;font-size:13px;color:var(--abu);cursor:pointer;font-family:'Inter';}
+  .tx-toggle button{flex:1;padding:9px 4px;border:none;background:transparent;border-radius:9px;font-weight:700;font-size:12.5px;color:var(--abu);cursor:pointer;font-family:'Inter';white-space:nowrap;}
   .tx-toggle button.active{background:#fff;color:var(--merah-tua);box-shadow:0 1px 3px rgba(0,0,0,.08);}
 
   .juara-card{border:1px solid var(--garis);border-radius:14px;padding:13px;margin-bottom:10px;background:#fff;}
@@ -174,9 +174,7 @@
 
       <div class="section-title">💾 Cadangan Data</div>
       <div class="card">
-        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data tersimpan online di 
-<b>Supabase</b> (otomatis tersinkron) dan di perangkat ini. Unduh cadangan secara berkala agar aman.</p>
-        <div style="font-size:12px;margin-bottom:10px;">Status: <span id="sync-status" style="font-weight:700;color:var(--abu);">⏳ Menyinkron…</span></div>
+        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data tersimpan di perangkat ini (localStorage). Unduh cadangan secara berkala agar data tidak hilang.</p>
         <div class="backup-row">
           <button class="btn btn-ghost" onclick="exportData()">⬇️ Ekspor JSON</button>
           <button class="btn btn-outline-sm" style="flex:1" onclick="document.getElementById('importFile').click()">⬆️ Impor JSON</button>
@@ -200,23 +198,17 @@
           </div>
           <div class="field">
             <label>Kategori</label>
-            <select id="lomba-kategori" onchange="onLombaKategoriChange()">
+            <select id="lomba-kategori">
               <option value="anak">Anak-anak</option>
               <option value="ibu">Ibu-ibu</option>
               <option value="dewasa">Dewasa / Umum</option>
             </select>
           </div>
-          <div id="lomba-kelas-wrap" style="display:none;">
-            <label style="display:block;font-size:12px;font-weight:600;color:var(--abu);margin-bottom:4px;">Kelas (Anak-anak)</label>
-            <div id="lomba-kelas-list"></div>
-            <button type="button" class="btn btn-outline-sm" style="width:100%;margin-top:4px;" onclick="addKelasInput()">➕ Tambah Kelas</button>
-            <p style="font-size:11px;color:var(--abu);margin:6px 0 0;">Peserta anak akan memilih salah satu kelas saat didaftar. Tiap kelas punya penyisihan sendiri, juaranya otomatis maju ke final.</p>
-          </div>
-          <div class="field" id="lomba-kelompok-wrap" style="margin-top:10px;">
-            <label>Kelompok (opsional)</label>
+          <div class="field">
+            <label>Kelompok / Kelas (opsional)</label>
             <input type="text" id="lomba-kelompok" placeholder="mis. Kelas 1-3 SD, kosongkan jika tidak ada">
           </div>
-          <button class="btn btn-primary" style="margin-top:6px;" onclick="saveLomba()">Simpan Cabang Lomba</button>
+          <button class="btn btn-primary" onclick="saveLomba()">Simpan Cabang Lomba</button>
         </div>
       </div>
 
@@ -226,31 +218,32 @@
 
     <!-- ================= PESERTA ================= -->
     <section class="tab" id="tab-peserta">
-      <div class="tx-toggle" id="peserta-tab-toggle">
-        <button id="btn-peserta-anak" class="active" onclick="switchPesertaTab('anak')">👶 Anak</button>
-        <button id="btn-peserta-dewasa" onclick="switchPesertaTab('dewasa')">🧑 Dewasa</button>
-        <button id="btn-peserta-ibu" onclick="switchPesertaTab('ibu')">👩 Ibu</button>
-      </div>
+      <div class="tx-toggle" id="peserta-subtabs"></div>
 
       <div class="card">
         <div class="toggle-add" onclick="toggleForm('form-peserta')">
-          <div><b id="form-peserta-title">Daftarkan Peserta Anak</b><div style="font-size:11.5px;color:var(--abu);margin-top:2px;">Otomatis ikut semua lomba kategori ini</div></div>
+          <div><b id="form-peserta-title">Daftarkan Peserta</b><div style="font-size:11.5px;color:var(--abu);margin-top:2px;">Otomatis ikut semua lomba di kategori ini</div></div>
           <div class="plus" id="form-peserta-icon">+</div>
         </div>
         <div class="form-wrap" id="form-peserta">
           <div class="field">
             <label>Nama Peserta</label>
-            <input type="text" id="peserta-nama" placeholder="Nama lengkap">
+            <input type="text" id="peserta-nama" placeholder="Nama lengkap" onkeydown="if(event.key==='Enter') savePeserta()">
           </div>
           <div class="field" id="peserta-kelas-wrap" style="display:none;">
             <label>Kelas</label>
-            <select id="peserta-kelas"></select>
+            <input type="text" id="peserta-kelas" placeholder="mis. TK, Kelas 1, Kelas 4" list="kelas-suggest">
+            <datalist id="kelas-suggest">
+              <option value="TK/PAUD"><option value="Kelas 1"><option value="Kelas 2"><option value="Kelas 3">
+              <option value="Kelas 4"><option value="Kelas 5"><option value="Kelas 6">
+            </datalist>
           </div>
           <p style="font-size:11.5px;color:var(--abu);margin:0 0 10px;">Peserta otomatis terdaftar di semua cabang lomba kategori ini. Kalau ada lomba tertentu yang tidak diikuti, atur di tab <b>Lomba</b>.</p>
           <button class="btn btn-primary" onclick="savePeserta()">Simpan Peserta</button>
         </div>
       </div>
 
+      <div class="chips" id="peserta-kelas-chips"></div>
       <div class="field" style="margin-bottom:10px;">
         <input type="text" id="peserta-search" placeholder="🔍 Cari nama peserta..." oninput="renderPeserta()">
       </div>
@@ -368,27 +361,26 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ============ SUPABASE CONFIG ============ */
-const SUPABASE_URL = 'https://tsbzxrszzdfwunopityg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzYnp4cnN6emRmd3Vub3BpdHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODUwMjMsImV4cCI6MjEwMDA2MTAyM30.oR0e8iyZIuI1l0pnjAznGWzMwaBZ2KyalMcdDSJqUFw';
-let sbClient = null;
-try{
-  if(window.supabase && window.supabase.createClient){
-    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-}catch(e){ console.warn('sbClient init failed, app runs in offline mode', e); }
-const DATA_ROW_ID = 'main';
-
 /* ============ DATA LAYER ============ */
 const STORAGE_KEY = 'lombaWargaData_v1';
 let data = loadData();
-let online = false;
 
 function defaultHadiahGlobal(){
   return { anakPartisipasi:0, anakJuara1:0, anakJuara2:0, anakJuara3:0,
     ibuJuara1:0, ibuJuara2:0, ibuJuara3:0, dewasaJuara1:0, dewasaJuara2:0, dewasaJuara3:0 };
+}
+function seedCabangLomba(){
+  return [
+    { id: uid(), nama: 'Makan Kerupuk', kategori: 'anak', kelompok: '' },
+    { id: uid(), nama: 'Jalan Silang', kategori: 'anak', kelompok: '' },
+    { id: uid(), nama: 'Estafet Tepung', kategori: 'anak', kelompok: '' },
+    { id: uid(), nama: 'Pecah Air', kategori: 'anak', kelompok: '' },
+    { id: uid(), nama: 'Voli', kategori: 'dewasa', kelompok: '' },
+    { id: uid(), nama: 'Estafet Tepung', kategori: 'dewasa', kelompok: '' },
+    { id: uid(), nama: 'Jalan Silang', kategori: 'ibu', kelompok: '' },
+    { id: uid(), nama: 'Estafet Tepung', kategori: 'ibu', kelompok: '' },
+  ];
 }
 function loadData(){
   try{
@@ -401,55 +393,10 @@ function loadData(){
       return parsed;
     }
   }catch(e){}
-  return { cabangLomba: [], peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
+  return { cabangLomba: seedCabangLomba(), peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
 }
 function saveData(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  syncToSupabase();
-}
-async function syncToSupabase(){
-  if(!sbClient) return;
-  try{
-    const { error } = await sbClient
-      .from('lomba_data')
-      .upsert({ id: DATA_ROW_ID, payload: data, updated_at: new Date().toISOString() });
-    if(!error){ online = true; }
-    else { console.warn('sbClient upsert error', error); }
-    const st = document.getElementById('sync-status');
-    if(st){
-      if(online){ st.textContent = '✅ Tersimpan online'; st.style.color = 'var(--hijau)'; }
-      else { st.textContent = '⚠️ Offline (lokal)'; st.style.color = 'var(--merah)'; }
-    }
-  }catch(e){ console.warn('sbClient sync failed', e); }
-}
-async function loadFromSupabase(){
-  if(!sbClient) return false;
-  try{
-    const { data: row, error } = await sbClient
-      .from('lomba_data')
-      .select('payload')
-      .eq('id', DATA_ROW_ID)
-      .maybeSingle();
-    if(error){ console.warn('sbClient load error', error); return false; }
-    if(row && row.payload){
-      data = normalizeLoaded(row.payload);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      online = true;
-      return true;
-    }
-  }catch(e){ console.warn('sbClient load failed', e); }
-  return false;
-}
-function normalizeLoaded(d){
-  if(!d) d = {};
-  if(!d.hadiahConfig) d.hadiahConfig = {};
-  if(!d.hadiahGlobal) d.hadiahGlobal = defaultHadiahGlobal();
-  if(!d.lombaExclusions) d.lombaExclusions = {};
-  if(!d.cabangLomba) d.cabangLomba = [];
-  if(!d.peserta) d.peserta = [];
-  if(!d.transaksi) d.transaksi = [];
-  if(!d.juara) d.juara = {};
-  return d;
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function rupiah(n){ return 'Rp' + (Number(n)||0).toLocaleString('id-ID'); }
@@ -461,15 +408,6 @@ function toast(msg){
 }
 const KATEGORI_LABEL = {anak:'Anak-anak', ibu:'Ibu-ibu', dewasa:'Dewasa / Umum'};
 const KATEGORI_CLASS = {anak:'anak', ibu:'ibu', dewasa:'dewasa'};
-
-/* Daftar kelas anak yang pernah dibuat (global, dipakai saat daftar peserta) */
-function getAllKelasAnak(){
-  const set = new Set();
-  (data.cabangLomba||[]).forEach(l=>{
-    if(l.kategori==='anak' && Array.isArray(l.kelas)) l.kelas.forEach(k=>{ if(k) set.add(k); });
-  });
-  return Array.from(set);
-}
 
 /* ============ NAV ============ */
 let currentTab = 'beranda';
@@ -493,7 +431,6 @@ function toggleForm(id){
   const icon = document.getElementById(id+'-icon');
   const open = wrap.classList.toggle('open');
   icon.style.transform = open ? 'rotate(45deg)' : 'rotate(0)';
-  if(open && id==='form-lomba') onLombaKategoriChange();
 }
 
 /* ============ RENDER ALL ============ */
@@ -501,6 +438,7 @@ function renderAll(){
   renderBeranda();
   renderLombaFilterChips();
   renderLombaList();
+  renderPesertaSubtabs();
   renderPeserta();
   renderKas();
   renderJuaraFilterChips();
@@ -538,14 +476,7 @@ function isExcluded(lombaId, pesertaId){
 function getPesertaForLomba(lombaId){
   const lomba = data.cabangLomba.find(l=>l.id===lombaId);
   if(!lomba) return [];
-  return data.peserta.filter(p=>{
-    if(p.kategori!==lomba.kategori) return false;
-    if(isExcluded(lombaId, p.id)) return false;
-    if(lomba.kategori==='anak' && Array.isArray(lomba.kelas) && lomba.kelas.length>0){
-      return lomba.kelas.includes(p.kelas||'');
-    }
-    return true;
-  });
+  return data.peserta.filter(p=>p.kategori===lomba.kategori && !isExcluded(lombaId, p.id));
 }
 function toggleLombaPesertaPanel(lombaId){
   openLombaPeserta = (openLombaPeserta===lombaId) ? null : lombaId;
@@ -565,41 +496,13 @@ function saveLomba(){
   const kategori = document.getElementById('lomba-kategori').value;
   const kelompok = document.getElementById('lomba-kelompok').value.trim();
   if(!nama){ toast('Nama cabang lomba wajib diisi'); return; }
-  let kelas = null;
-  if(kategori==='anak'){
-    kelas = readKelasInputs();
-  }
-  const lomba = { id: uid(), nama, kategori, kelompok };
-  if(kelas) lomba.kelas = kelas;
-  data.cabangLomba.push(lomba);
+  data.cabangLomba.push({ id: uid(), nama, kategori, kelompok });
   saveData();
   document.getElementById('lomba-nama').value='';
   document.getElementById('lomba-kelompok').value='';
-  document.getElementById('lomba-kelas-list').innerHTML='';
-  if(kategori==='anak') addKelasInput();
   toggleForm('form-lomba');
   toast('Cabang lomba tersimpan');
   renderAll();
-}
-function onLombaKategoriChange(){
-  const k = document.getElementById('lomba-kategori').value;
-  const isAnak = k==='anak';
-  document.getElementById('lomba-kelas-wrap').style.display = isAnak ? 'block':'none';
-  document.getElementById('lomba-kelompok-wrap').style.display = isAnak ? 'none':'block';
-  if(isAnak && document.getElementById('lomba-kelas-list').children.length===0) addKelasInput();
-}
-function addKelasInput(val){
-  const list = document.getElementById('lomba-kelas-list');
-  const row = document.createElement('div');
-  row.style.cssText='display:flex;gap:6px;margin-bottom:6px;';
-  row.innerHTML = `<input type="text" class="kelas-input" placeholder="mis. TK A / SD 1-3" value="${val||''}">
-    <button type="button" class="icon-btn del" onclick="this.parentNode.remove()">✕</button>`;
-  list.appendChild(row);
-}
-function readKelasInputs(){
-  const vals = Array.from(document.querySelectorAll('#lomba-kelas-list .kelas-input'))
-    .map(i=>i.value.trim()).filter(Boolean);
-  return vals.length ? vals : null;
 }
 function deleteLomba(id){
   if(!confirm('Hapus cabang lomba ini?')) return;
@@ -633,7 +536,7 @@ function renderLombaList(){
         <div>
           <div class="item-name">${esc(l.nama)}</div>
           <div class="item-sub">${pesertaLomba.length} dari ${kategoriPeserta.length} peserta ${KATEGORI_LABEL[l.kategori].toLowerCase()} ikut</div>
-          <span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span>${l.kelas? ' <span class="badge anak">Kelas: '+esc(l.kelas.join(', '))+'</span>':''}
+          <span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span>
         </div>
         <div class="item-actions">
           <button class="icon-btn del" onclick="deleteLomba('${l.id}')">🗑️</button>
@@ -659,40 +562,37 @@ function renderLombaPesertaPanel(l, kategoriPeserta){
 }
 
 /* ============ PESERTA ============ */
-function switchPesertaTab(kat){
-  pesertaKategoriTab = kat;
-  ['anak','dewasa','ibu'].forEach(k=>{
-    document.getElementById('btn-peserta-'+k).classList.toggle('active', k===kat);
-  });
-  const titleMap = {anak:'Daftarkan Peserta Anak', dewasa:'Daftarkan Peserta Dewasa', ibu:'Daftarkan Peserta Ibu'};
-  document.getElementById('form-peserta-title').textContent = titleMap[kat];
-  const kelasWrap = document.getElementById('peserta-kelas-wrap');
-  const kelasSel = document.getElementById('peserta-kelas');
-  if(kat==='anak'){
-    kelasWrap.style.display='block';
-    const kelas = getAllKelasAnak();
-    kelasSel.innerHTML = '<option value="">— tanpa kelas —</option>' + kelas.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
-  } else {
-    kelasWrap.style.display='none';
-    kelasSel.value='';
-  }
+let pesertaKategoriTab = 'anak';
+let pesertaKelasFilter = 'semua';
+function switchPesertaKategori(k){
+  pesertaKategoriTab = k;
+  pesertaKelasFilter = 'semua';
+  renderPesertaSubtabs();
   renderPeserta();
+}
+function renderPesertaSubtabs(){
+  const wrap = document.getElementById('peserta-subtabs');
+  const cats = [['anak','🎈 Anak-anak'],['ibu','👩 Ibu-ibu'],['dewasa','🧑 Dewasa']];
+  wrap.innerHTML = cats.map(([k,l])=>`<button class="${pesertaKategoriTab===k?'active':''}" onclick="switchPesertaKategori('${k}')">${l}</button>`).join('');
+  const title = document.getElementById('form-peserta-title');
+  if(title) title.textContent = 'Daftarkan Peserta ' + KATEGORI_LABEL[pesertaKategoriTab];
+  const kelasWrap = document.getElementById('peserta-kelas-wrap');
+  if(kelasWrap) kelasWrap.style.display = (pesertaKategoriTab==='anak') ? 'block' : 'none';
 }
 function savePeserta(){
   const nama = document.getElementById('peserta-nama').value.trim();
-  const kategori = pesertaKategoriTab;
   if(!nama){ toast('Nama peserta wajib diisi'); return; }
-  const entry = { id: uid(), nama, kategori };
-  if(kategori==='anak'){
-    entry.kelas = document.getElementById('peserta-kelas').value;
+  const entry = { id: uid(), nama, kategori: pesertaKategoriTab };
+  if(pesertaKategoriTab === 'anak'){
+    entry.kelas = document.getElementById('peserta-kelas').value.trim();
   }
   data.peserta.push(entry);
   saveData();
   document.getElementById('peserta-nama').value='';
-  if(kategori==='anak') document.getElementById('peserta-kelas').value='';
-  toggleForm('form-peserta');
+  if(pesertaKategoriTab === 'anak') document.getElementById('peserta-kelas').value='';
   toast('Peserta tersimpan, otomatis ikut semua lomba kategori ini');
   renderAll();
+  document.getElementById('peserta-nama').focus();
 }
 function deletePeserta(id){
   if(!confirm('Hapus peserta ini?')) return;
@@ -706,18 +606,34 @@ function deletePeserta(id){
   });
   saveData(); toast('Peserta dihapus'); renderAll();
 }
-let pesertaKategoriTab = 'anak';
 function renderPeserta(){
   const list = document.getElementById('peserta-list');
+  const kelasChipsWrap = document.getElementById('peserta-kelas-chips');
   const search = (document.getElementById('peserta-search').value||'').toLowerCase();
   let items = data.peserta.filter(p=>p.kategori===pesertaKategoriTab);
+
+  if(pesertaKategoriTab === 'anak'){
+    const kelasList = [...new Set(items.map(p=>p.kelas).filter(Boolean))].sort();
+    if(kelasList.length>0){
+      kelasChipsWrap.style.display = 'flex';
+      const chips = [['semua','Semua Kelas'], ...kelasList.map(k=>[k,k])];
+      kelasChipsWrap.innerHTML = chips.map(([k,l])=>`<div class="chip ${pesertaKelasFilter===k?'active':''}" onclick="pesertaKelasFilter='${esc(k)}';renderPeserta()">${esc(l)}</div>`).join('');
+    } else {
+      kelasChipsWrap.style.display = 'none';
+      kelasChipsWrap.innerHTML = '';
+    }
+    if(pesertaKelasFilter!=='semua') items = items.filter(p=>p.kelas===pesertaKelasFilter);
+  } else {
+    kelasChipsWrap.style.display = 'none';
+    kelasChipsWrap.innerHTML = '';
+  }
+
   if(search) items = items.filter(p=>p.nama.toLowerCase().includes(search));
   if(items.length===0){
-    const lblMap = {anak:'Anak-anak', dewasa:'Dewasa', ibu:'Ibu-ibu'};
-    list.innerHTML = `<div class="empty"><span class="em">👥</span>Belum ada peserta ${lblMap[pesertaKategoriTab]}.</div>`;
+    list.innerHTML = `<div class="empty"><span class="em">👥</span>Belum ada peserta ${KATEGORI_LABEL[pesertaKategoriTab].toLowerCase()}.</div>`;
     return;
   }
-  items = [...items].sort((a,b)=> a.kategori.localeCompare(b.kategori) || a.nama.localeCompare(b.nama));
+  items = [...items].sort((a,b)=> a.nama.localeCompare(b.nama));
   list.innerHTML = items.map(p=>{
     const totalLombaKategori = data.cabangLomba.filter(l=>l.kategori===p.kategori).length;
     const ikutCount = data.cabangLomba.filter(l=>l.kategori===p.kategori && !isExcluded(l.id, p.id)).length;
@@ -726,7 +642,7 @@ function renderPeserta(){
         <div>
           <div class="item-name">${esc(p.nama)}</div>
           <div class="item-sub">${totalLombaKategori===0? 'Belum ada cabang lomba kategori ini' : `Ikut ${ikutCount} dari ${totalLombaKategori} lomba`}</div>
-          <span class="badge ${KATEGORI_CLASS[p.kategori]}">${KATEGORI_LABEL[p.kategori]}</span>${p.kelas? ' <span class="badge anak">'+esc(p.kelas)+'</span>':''}
+          ${p.kelas? `<span class="badge anak">${esc(p.kelas)}</span>`:''}
         </div>
         <div class="item-actions">
           <button class="icon-btn del" onclick="deletePeserta('${p.id}')">🗑️</button>
@@ -847,75 +763,23 @@ function renderJuara(){
         <div style="font-size:12px;color:var(--abu);">Belum ada peserta terdaftar di lomba ini.</div>
       </div>`;
     }
-    const header = `<h4>${esc(l.nama)}</h4><div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span></div>`;
-
-    /* Lomba anak berkelas -> penyisihan per kelas + final otomatis */
-    if(l.kategori==='anak' && Array.isArray(l.kelas) && l.kelas.length>0){
-      const kelasPesertaMap = {};
-      l.kelas.forEach(kls=>{ kelasPesertaMap[kls] = peserta.filter(p=> (p.kelas||'')===kls); });
-      if(!j.kelas) j.kelas = {};
-      let html = `<div class="juara-card">${header}<div style="font-size:11.5px;font-weight:700;color:var(--merah-tua);margin:6px 0 4px;">🎯 Penyisihan per Kelas</div>`;
-      l.kelas.forEach(kls=>{
-        const kp = kelasPesertaMap[kls];
-        const kj = j.kelas[kls] || {};
-        html += `<div style="background:#FCF6EF;border:1px solid var(--garis);border-radius:10px;padding:8px;margin-bottom:8px;">
-          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px;">🏫 Kelas ${esc(kls)} (${kp.length} peserta)</div>`;
-        if(kp.length===0){
-          html += `<div style="font-size:11.5px;color:var(--abu);">Belum ada peserta kelas ini.</div>`;
-        } else {
-          const opts = (sel)=> `<option value="">-- pilih --</option>` + kp.map(p=>`<option value="${p.id}" ${sel===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
-          html += `<div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1','${esc(kls)}',this.value)">${opts(kj.juara1)}</select></div>
-                   <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2','${esc(kls)}',this.value)">${opts(kj.juara2)}</select></div>
-                   <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3','${esc(kls)}',this.value)">${opts(kj.juara3)}</select></div>`;
-        }
-        html += `</div>`;
-      });
-      /* Final otomatis dari juara1 tiap kelas (lalu 2,3) */
-      const finalists = [];
-      l.kelas.forEach(kls=>{ const kj=j.kelas[kls]||{}; if(kj.juara1) finalists.push(kj.juara1); });
-      l.kelas.forEach(kls=>{ const kj=j.kelas[kls]||{}; if(kj.juara2) finalists.push(kj.juara2); });
-      l.kelas.forEach(kls=>{ const kj=j.kelas[kls]||{}; if(kj.juara3) finalists.push(kj.juara3); });
-      const finalPeserta = finalists.map(id=> data.peserta.find(p=>p.id===id)).filter(Boolean);
-      const fj = j.final || {};
-      const fopts = (sel)=> `<option value="">-- pilih --</option>` + finalPeserta.map(p=>`<option value="${p.id}" ${sel===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
-      html += `<div style="font-size:11.5px;font-weight:700;color:var(--emas);margin:8px 0 4px;">🏆 FINAL (otomatis dari juara tiap kelas)</div>`;
-      if(finalPeserta.length===0){
-        html += `<div style="font-size:11.5px;color:var(--abu);">Isi juara penyisihan tiap kelas dulu, final terisi otomatis.</div>`;
-      } else {
-        html += `<div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1','__final__',this.value)">${fopts(fj.juara1)}</select></div>
-                 <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2','__final__',this.value)">${fopts(fj.juara2)}</select></div>
-                 <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3','__final__',this.value)">${fopts(fj.juara3)}</select></div>`;
-      }
-      html += `<div class="saved-tag" id="saved-${l.id}">✓ Tersimpan</div></div>`;
-      return html;
-    }
-
-    /* Lomba tanpa kelas / dewasa / ibu -> langsung juara 1/2/3 */
     const options = (selected)=> `<option value="">-- pilih peserta --</option>` + peserta.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
     return `<div class="juara-card">
-      ${header}
-      <div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1',null,this.value)">${options(j.juara1)}</select></div>
-      <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2',null,this.value)">${options(j.juara2)}</select></div>
-      <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3',null,this.value)">${options(j.juara3)}</select></div>
+      <h4>${esc(l.nama)}</h4>
+      <div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span></div>
+      <div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1',this.value)">${options(j.juara1)}</select></div>
+      <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2',this.value)">${options(j.juara2)}</select></div>
+      <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3',this.value)">${options(j.juara3)}</select></div>
       <div class="saved-tag" id="saved-${l.id}">✓ Tersimpan</div>
     </div>`;
   }).join('');
 }
-function setJuara(lombaId, posisi, kelas, pesertaId){
+function setJuara(lombaId, posisi, pesertaId){
   if(!data.juara[lombaId]) data.juara[lombaId] = {};
-  const j = data.juara[lombaId];
-  if(kelas==='__final__'){
-    if(!j.final) j.final = {};
-    j.final[posisi] = pesertaId || null;
-  } else if(kelas){
-    if(!j.kelas) j.kelas = {};
-    if(!j.kelas[kelas]) j.kelas[kelas] = {};
-    j.kelas[kelas][posisi] = pesertaId || null;
-  } else {
-    j[posisi] = pesertaId || null;
-  }
+  data.juara[lombaId][posisi] = pesertaId || null;
   saveData();
-  renderAll();
+  const tag = document.getElementById('saved-'+lombaId);
+  if(tag){ tag.style.display='block'; setTimeout(()=>tag.style.display='none', 1500); }
 }
 
 /* ============ HADIAH ============ */
@@ -928,12 +792,7 @@ function hitungTotalHadiahLomba(lomba){
   if(lomba.kategori === 'anak'){
     const jumlahPeserta = getPesertaForLomba(lomba.id).length;
     const jd = data.juara[lomba.id] || {};
-    let juaraAssigned;
-    if(Array.isArray(lomba.kelas) && lomba.kelas.length>0){
-      juaraAssigned = ['juara1','juara2','juara3'].filter(pos=> jd.final && jd.final[pos]);
-    } else {
-      juaraAssigned = ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
-    }
+    const juaraAssigned = ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
     const nonJuaraCount = Math.max(0, jumlahPeserta - juaraAssigned.length);
     let total = nonJuaraCount * (Number(g.anakPartisipasi)||0);
     juaraAssigned.forEach(pos=>{
@@ -1022,9 +881,7 @@ function renderHadiah(){
     if(l.kategori === 'anak'){
       const jumlahPeserta = getPesertaForLomba(l.id).length;
       const jd = data.juara[l.id] || {};
-      const juaraAssigned = (Array.isArray(l.kelas) && l.kelas.length>0)
-        ? ['juara1','juara2','juara3'].filter(pos=> jd.final && jd.final[pos])
-        : ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
+      const juaraAssigned = ['juara1','juara2','juara3'].filter(pos=>jd[pos]);
       const nonJuaraCount = Math.max(0, jumlahPeserta - juaraAssigned.length);
       const parts = [`${nonJuaraCount} non-juara × ${rupiah(g.anakPartisipasi||0)}`];
       juaraAssigned.forEach(pos=>{
@@ -1101,21 +958,7 @@ function esc(s){
 
 /* ============ INIT ============ */
 document.getElementById('kas-tanggal').valueAsDate = new Date();
-switchPesertaTab('anak');
 renderAll();
-
-(async function initSync(){
-  const ok = await loadFromSupabase();
-  if(ok){ renderAll(); }
-  else { syncToSupabase(); }
-  const st = document.getElementById('sync-status');
-  if(st){
-    st.textContent = online ? '✅ Tersimpan online' : '⚠️ Offline (lokal)';
-    st.style.color = online ? 'var(--hijau)' : 'var(--merah)';
-  }
-})();
 </script>
 </body>
 </html>
-
-
