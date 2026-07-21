@@ -576,6 +576,7 @@ function renderLombaPesertaPanel(l, kategoriPeserta){
 
 /* ============ PESERTA ============ */
 let pesertaKategoriTab = 'anak';
+let pesertaKelasFilter = 'semua';
 function savePeserta(){
   const nama = document.getElementById('peserta-nama').value.trim();
   if(!nama){ toast('Nama peserta wajib diisi'); return; }
@@ -639,7 +640,7 @@ function renderPeserta(){
         <div>
           <div class="item-name">${esc(p.nama)}</div>
           <div class="item-sub">${totalLombaKategori===0? 'Belum ada cabang lomba kategori ini' : `Ikut ${ikutCount} dari ${totalLombaKategori} lomba`}</div>
-          ${p.kelas? `<span class="badge anak">${esc(p.kelas)}</span>`:''}
+          <span class="badge ${KATEGORI_CLASS[p.kategori]}">${KATEGORI_LABEL[p.kategori]}</span> ${p.kelas? `<span class="badge anak">${esc(p.kelas)}</span>`:''}
         </div>
         <div class="item-actions">
           <button class="icon-btn del" onclick="deletePeserta('${p.id}')">🗑️</button>
