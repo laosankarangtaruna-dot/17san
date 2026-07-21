@@ -160,7 +160,7 @@
       <div class="stat-grid">
         <div class="stat"><div class="num" id="st-total-peserta">0</div><div class="lbl">Total Peserta</div></div>
         <div class="stat"><div class="num" id="st-total-lomba">0</div><div class="lbl">Cabang Lomba</div></div>
-        <div class="stat gold"><div class="num" id="st-saldo">Rp0</div><div class="lbl">Saldo Kas</div></div>
+        <div class="stat gold"><div class="num" id="st-saldo">Rp0</div><div class="lbl">Saldo Iuran</div></div>
         <div class="stat green"><div class="num" id="st-juara-selesai">0</div><div class="lbl">Lomba Ada Juara</div></div>
         <div class="stat wide"><div><div class="num" id="st-hadiah" style="color:var(--merah)">Rp0</div><div class="lbl">Estimasi Biaya Hadiah</div></div><div style="font-size:26px;">🎁</div></div>
       </div>
@@ -255,7 +255,7 @@
       <div class="stat-grid">
         <div class="stat green"><div class="num" id="kas-masuk">Rp0</div><div class="lbl">Total Pemasukan</div></div>
         <div class="stat"><div class="num" id="kas-keluar" style="color:var(--merah)">Rp0</div><div class="lbl">Total Pengeluaran</div></div>
-        <div class="stat wide gold"><div><div class="num" id="kas-saldo">Rp0</div><div class="lbl">Saldo Kas Saat Ini</div></div><div style="font-size:26px;">💰</div></div>
+        <div class="stat wide gold"><div><div class="num" id="kas-saldo">Rp0</div><div class="lbl">Saldo Iuran Saat Ini</div></div><div style="font-size:26px;">💰</div></div>
       </div>
 
       <div class="tx-toggle">
@@ -353,7 +353,7 @@
     <button data-tab="beranda" class="active" onclick="switchTab('beranda')"><span class="ic">🏠</span><span class="tx">Beranda</span></button>
     <button data-tab="lomba" onclick="switchTab('lomba')"><span class="ic">🏁</span><span class="tx">Lomba</span></button>
     <button data-tab="peserta" onclick="switchTab('peserta')"><span class="ic">👥</span><span class="tx">Peserta</span></button>
-    <button data-tab="kas" onclick="switchTab('kas')"><span class="ic">💰</span><span class="tx">Kas</span></button>
+    <button data-tab="kas" onclick="switchTab('kas')"><span class="ic">💰</span><span class="tx">Iuran</span></button>
     <button data-tab="juara" onclick="switchTab('juara')"><span class="ic">🏆</span><span class="tx">Juara</span></button>
     <button data-tab="hadiah" onclick="switchTab('hadiah')"><span class="ic">🎁</span><span class="tx">Hadiah</span></button>
   </nav>
@@ -839,7 +839,7 @@ function catatHadiahKeKas(lombaId){
     if(tx){
       tx.jumlah = total;
       saveData();
-      toast('Jumlah pengeluaran di Kas diperbarui');
+      toast('Jumlah pengeluaran di Iuran diperbarui');
       renderAll();
       return;
     }
@@ -848,7 +848,7 @@ function catatHadiahKeKas(lombaId){
   data.transaksi.push({ id, tipe:'keluar', tanggal: new Date().toISOString().slice(0,10), keterangan: 'Hadiah Lomba '+lomba.nama, jumlah: total });
   cfg.pengeluaranId = id;
   saveData();
-  toast('Dicatat sebagai pengeluaran di Kas');
+  toast('Dicatat sebagai pengeluaran di Iuran');
   renderAll();
 }
 let hadiahFilter = 'semua';
@@ -903,8 +903,8 @@ function renderHadiah(){
         <span style="font-size:11px;color:var(--abu);">${breakdown}</span>
         <span class="v">${rupiah(total)}</span>
       </div>
-      ${sudahDicatat? `<div class="kas-tag">✓ Tercatat di Kas sebagai pengeluaran</div>`:''}
-      <button class="btn btn-outline-sm" style="width:100%;margin-top:9px;" onclick="catatHadiahKeKas('${l.id}')">${sudahDicatat? '🔄 Perbarui':'📤 Catat'} sebagai Pengeluaran di Kas</button>
+      ${sudahDicatat? `<div class="kas-tag">✓ Tercatat di Iuran sebagai pengeluaran</div>`:''}
+      <button class="btn btn-outline-sm" style="width:100%;margin-top:9px;" onclick="catatHadiahKeKas('${l.id}')">${sudahDicatat? '🔄 Perbarui':'📤 Catat'} sebagai Pengeluaran di Iuran</button>
     </div>`;
   }).join('');
 }
