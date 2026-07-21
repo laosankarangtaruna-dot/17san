@@ -394,6 +394,7 @@ function loadData(){
       if(!parsed.hadiahConfig) parsed.hadiahConfig = {};
       if(!parsed.hadiahGlobal) parsed.hadiahGlobal = defaultHadiahGlobal();
       if(!parsed.lombaExclusions) parsed.lombaExclusions = {};
+      normalizeData();
       return parsed;
     }
   }catch(e){}
@@ -409,6 +410,21 @@ function saveData(){
       updateSyncStatus();
     })
     .catch(e=>{ online = false; console.warn('Supabase save failed', e); updateSyncStatus(); });
+}
+function normalizeData(){
+  if(!data.hadiahConfig) data.hadiahConfig = {};
+  if(!data.hadiahGlobal) data.hadiahGlobal = defaultHadiahGlobal();
+  if(!data.lombaExclusions) data.lombaExclusions = {};
+  if(!data.juara) data.juara = {};
+  if(!data.cabangLomba) data.cabangLomba = [];
+  if(!data.peserta) data.peserta = [];
+  if(!data.transaksi) data.transaksi = [];
+  data.peserta.forEach(p=>{
+    if(p.kategori==='anak' && !p.kelas) p.kelas = '';
+  });
+  data.cabangLomba.forEach(l=>{
+    if(l.kategori==='anak' && !Array.isArray(l.kelas)) l.kelas = ['A','B','C','D'];
+  });
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function rupiah(n){ return 'Rp' + (Number(n)||0).toLocaleString('id-ID'); }
@@ -1001,6 +1017,7 @@ renderAll();
     if(error){ console.warn('Supabase load error', error); }
     if(row && row.payload){
       data = row.payload;
+      normalizeData();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       online = true;
       renderAll();
