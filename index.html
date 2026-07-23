@@ -89,6 +89,8 @@
   .item-sub{font-size:12px;color:var(--abu);margin-top:2px;}
   .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;background:#F7EDE4;color:var(--merah-tua);margin-top:5px;}
   .badge.ibu{background:#F3E6F5;color:#7A3B8A;}
+  .badge.beregu{background:#DBEAFE;color:#1D4ED8;}
+  .badge.perorangan{background:#F0FDF4;color:#166534;}
   .badge.dewasa{background:#E4EEF7;color:#2B5F8A;}
   .badge.anak{background:#FDE9E9;color:var(--merah-tua);}
   .item-actions{display:flex;gap:6px;flex-shrink:0;}
@@ -104,6 +106,31 @@
   .tx-toggle{display:flex;background:#F5EFE7;border-radius:12px;padding:4px;margin-bottom:14px;}
   .tx-toggle button{flex:1;padding:9px 4px;border:none;background:transparent;border-radius:9px;font-weight:700;font-size:12.5px;color:var(--abu);cursor:pointer;font-family:'Inter';white-space:nowrap;}
   .tx-toggle button.active{background:#fff;color:var(--merah-tua);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+  /* BRACKET PER-KELAS */
+  .bracket-kelas{background:#FAFAF7;border:1px solid var(--garis);border-radius:12px;padding:10px;margin-bottom:10px;}
+  .bracket-kelas-title{font-size:12px;font-weight:800;color:var(--merah-tua);text-transform:uppercase;margin-bottom:8px;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center;}
+  .bracket-kelas-title .del-btn{font-size:11px;color:var(--abu);cursor:pointer;border:none;background:none;padding:2px 4px;}
+  .bracket-body{display:flex;gap:8px;align-items:flex-start;}
+  .bracket-kloters{flex:1 1 55%;min-width:0;}
+  .bracket-final{flex:1 1 40%;min-width:140px;}
+  .kloter-card{background:#fff;border:1px solid var(--garis);border-radius:8px;padding:8px;margin-bottom:6px;}
+  .kloter-card h5{margin:0 0 4px;font-size:11px;font-weight:800;color:var(--merah-tua);text-transform:uppercase;}
+  .kloter-row{display:flex;align-items:center;gap:6px;padding:5px 3px;border-bottom:1px solid var(--garis);cursor:pointer;font-size:12.5px;transition:background .12s;}
+  .kloter-row:last-child{border-bottom:none;}
+  .kloter-row:active{background:#f0ede8;}
+  .kloter-row.lolos{background:#EAF7EC;}
+  .kloter-row .kr-num{width:16px;color:var(--abu);font-size:11px;text-align:center;flex-shrink:0;}
+  .kloter-row .kr-name{flex:1;font-weight:500;}
+  .kloter-row.lolos .kr-name{font-weight:700;color:#1E7B34;}
+  .kloter-row .kr-badge{font-size:10px;color:#1E7B34;font-weight:700;white-space:nowrap;}
+  .final-card{background:linear-gradient(135deg,#FFF8E1,#FFF3CD);border:2px solid var(--emas);border-radius:10px;padding:10px;}
+  .final-card h5{margin:0 0 6px;font-size:12px;font-weight:800;color:#8B6914;text-transform:uppercase;}
+  .final-row{display:flex;align-items:center;gap:6px;padding:5px 3px;border-bottom:1px solid #E8D9A0;font-size:12.5px;}
+  .final-row:last-child{border-bottom:none;}
+  .final-row .fr-medal{width:20px;text-align:center;font-size:14px;flex-shrink:0;}
+  .final-row select{flex:1;font-size:12px;padding:5px 6px;border:1px solid #D4C090;border-radius:6px;background:#fff;}
+  .final-empty{font-size:11px;color:#8B6914;text-align:center;padding:10px 4px;}
 
   .juara-card{border:1px solid var(--garis);border-radius:14px;padding:13px;margin-bottom:10px;background:#fff;}
   .juara-card h4{margin:0 0 2px;font-size:14.5px;font-weight:700;}
@@ -174,7 +201,8 @@
 
       <div class="section-title">💾 Cadangan Data</div>
       <div class="card">
-        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data tersimpan di perangkat ini (localStorage). Unduh cadangan secara berkala agar data tidak hilang.</p>
+        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data tersimpan di <b>GitHub</b>. Unduh cadangan secara berkala agar aman.</p>
+        <div style="font-size:12px;margin-bottom:10px;">Status: <span id="sync-status" style="font-weight:700;color:var(--abu);">Menyinkron...</span></div>
         <div class="backup-row">
           <button class="btn btn-ghost" onclick="exportData()">⬇️ Ekspor JSON</button>
           <button class="btn btn-outline-sm" style="flex:1" onclick="document.getElementById('importFile').click()">⬆️ Impor JSON</button>
@@ -182,12 +210,24 @@
         <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
         <button class="btn btn-outline-sm" style="width:100%;margin-top:8px;color:#C0392B" onclick="resetAllData()">🗑️ Hapus Semua Data</button>
       </div>
+
+      <div class="section-title">🌐 Pengaturan Online</div>
+      <div class="card">
+        <p style="font-size:12px;color:var(--abu);margin:0 0 10px;">Data disimpan di GitHub. Paste <b>Personal Access Token</b> untuk sinkronisasi online.</p>
+        <div class="field">
+          <label>GitHub Token</label>
+          <input type="password" id="gh-token-input" placeholder="ghp_xxxxxxxxxxxx" style="font-size:12px;">
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="saveGitHubToken()">Simpan & Hubungkan</button>
+        <div id="gh-msg" style="font-size:11px;color:var(--abu);margin-top:6px;"></div>
+        <p style="font-size:10px;color:var(--abu);margin:8px 0 0;">Buat token: GitHub Settings → Tokens → Generate (scope: Contents Read/Write)</p>
+      </div>
     </section>
 
     <!-- ================= CABANG LOMBA ================= -->
     <section class="tab" id="tab-lomba">
       <div class="card">
-        <div class="toggle-add" onclick="toggleForm('form-lomba')">
+        <div class="toggle-add" onclick="toggleLombaForm()">
           <div><b>Kelola Cabang Lomba</b><div style="font-size:11.5px;color:var(--abu);margin-top:2px;">Tentukan nama & kategori lomba</div></div>
           <div class="plus" id="form-lomba-icon">+</div>
         </div>
@@ -197,16 +237,29 @@
             <input type="text" id="lomba-nama" placeholder="mis. Lari Karung, Makan Kerupuk">
           </div>
           <div class="field">
+            <label>Jenis Lomba</label>
+            <select id="lomba-tipe">
+              <option value="perorangan">Perorangan</option>
+              <option value="beregu">Beregu</option>
+            </select>
+          </div>
+          <div class="field">
             <label>Kategori</label>
-            <select id="lomba-kategori">
+            <select id="lomba-kategori" onchange="onLombaKategoriChange()">
               <option value="anak">Anak-anak</option>
               <option value="ibu">Ibu-ibu</option>
               <option value="dewasa">Dewasa / Umum</option>
             </select>
           </div>
-          <div class="field">
-            <label>Kelompok / Kelas (opsional)</label>
-            <input type="text" id="lomba-kelompok" placeholder="mis. Kelas 1-3 SD, kosongkan jika tidak ada">
+          <div class="field" id="lomba-kelas-wrap">
+            <label>Kelas</label>
+            <select id="lomba-kelas-select">
+              <option value="">Semua kelas (tidak dibatasi)</option>
+            </select>
+          </div>
+          <div class="field" id="lomba-kelompok-wrap" style="display:none;">
+            <label>Kelompok (opsional)</label>
+            <input type="text" id="lomba-kelompok" placeholder="mis. RT 01-03, kosongkan jika tidak ada">
           </div>
           <button class="btn btn-primary" onclick="saveLomba()">Simpan Cabang Lomba</button>
         </div>
@@ -224,30 +277,76 @@
         <button id="btn-peserta-ibu" onclick="switchPesertaTab('ibu')">👩 Ibu</button>
       </div>
 
-      <div class="card">
-        <div class="toggle-add" onclick="toggleForm('form-peserta')">
-          <div><b id="form-peserta-title">Daftarkan Peserta</b><div style="font-size:11.5px;color:var(--abu);margin-top:2px;">Otomatis ikut semua lomba di kategori ini</div></div>
-          <div class="plus" id="form-peserta-icon">+</div>
-        </div>
-        <div class="form-wrap" id="form-peserta">
-          <div class="field">
-            <label>Nama Peserta</label>
-            <input type="text" id="peserta-nama" placeholder="Nama lengkap" onkeydown="if(event.key==='Enter') savePeserta()">
-          </div>
-          <div class="field" id="peserta-kelas-wrap" style="display:none;">
-            <label>Kelas</label>
-            <input type="text" id="peserta-kelas" placeholder="mis. TK, Kelas 1, Kelas 4">
-          </div>
-          <p style="font-size:11.5px;color:var(--abu);margin:0 0 10px;">Peserta otomatis terdaftar di semua cabang lomba kategori ini. Kalau ada lomba tertentu yang tidak diikuti, atur di tab <b>Lomba</b>.</p>
-          <button class="btn btn-primary" onclick="savePeserta()">Simpan Peserta</button>
-        </div>
+      <div class="tx-toggle" style="margin-bottom:12px;">
+        <button id="btn-regu-mode-peserta" class="active" onclick="switchReguMode('peserta')">👤 Peserta</button>
+        <button id="btn-regu-mode-regu" onclick="switchReguMode('regu')">👥 Regu</button>
       </div>
 
-      <div class="chips" id="peserta-kelas-chips"></div>
-      <div class="field" style="margin-bottom:10px;">
-        <input type="text" id="peserta-search" placeholder="🔍 Cari nama peserta..." oninput="renderPeserta()">
+      <div id="regu-peserta-section">
+        <div class="card">
+          <div class="toggle-add" onclick="toggleForm('form-peserta')">
+            <div><b id="form-peserta-title">Daftarkan Peserta</b><div style="font-size:11.5px;color:var(--abu);margin-top:2px;">Otomatis ikut semua lomba di kategori ini</div></div>
+            <div class="plus" id="form-peserta-icon">+</div>
+          </div>
+          <div class="form-wrap" id="form-peserta">
+            <div class="field">
+              <label>Nama Peserta</label>
+              <input type="text" id="peserta-nama" placeholder="Nama lengkap" onkeydown="if(event.key==='Enter') savePeserta()">
+            </div>
+            <div class="field" id="peserta-kelas-wrap" style="display:none;">
+              <label>Kelas</label>
+              <input type="text" id="peserta-kelas" placeholder="mis. TK, Kelas 1, Kelas 4">
+            </div>
+            <p style="font-size:11.5px;color:var(--abu);margin:0 0 10px;">Peserta otomatis terdaftar di semua cabang lomba kategori ini. Kalau ada lomba tertentu yang tidak diikuti, atur di tab <b>Lomba</b>.</p>
+            <button class="btn btn-primary" onclick="savePeserta()">Simpan Peserta</button>
+          </div>
+        </div>
+        <div class="chips" id="peserta-kelas-chips"></div>
+        <div class="field" style="margin-bottom:10px;">
+          <input type="text" id="peserta-search" placeholder="🔍 Cari nama peserta..." oninput="renderPeserta()">
+        </div>
+        <div id="peserta-list"></div>
       </div>
-      <div id="peserta-list"></div>
+
+      <div id="regu-regu-section" style="display:none;">
+        <div class="card">
+          <div class="toggle-add" onclick="toggleForm('form-regu')">
+            <div><b>Buat Regu</b><div style="font-size:11.5px;color:var(--abu);margin-top:2px;">Kelompokkan peserta menjadi regu untuk lomba beregu</div></div>
+            <div class="plus" id="form-regu-icon">+</div>
+          </div>
+          <div class="form-wrap" id="form-regu">
+            <div class="field">
+              <label>Nama Regu</label>
+              <input type="text" id="regu-nama" placeholder="mis. Regu Merah, Tim Putri">
+            </div>
+            <div class="field">
+              <label>Kategori</label>
+              <select id="regu-kategori" onchange="onReguKategoriChange()">
+                <option value="anak">Anak-anak</option>
+                <option value="dewasa">Dewasa / Umum</option>
+                <option value="ibu">Ibu-ibu</option>
+              </select>
+            </div>
+            <div class="field" id="regu-kelas-wrap" style="display:none;">
+              <label>Kelas</label>
+              <input type="text" id="regu-kelas" placeholder="mis. TK, Kelas 1, Kelas 4">
+            </div>
+            <div class="field">
+              <label>Anggota Regu (centang yang ikut)</label>
+              <div id="regu-anggota-checks" style="max-height:200px;overflow-y:auto;"></div>
+              <div id="regu-anggota-count" style="font-size:11px;color:var(--abu);margin-top:6px;"></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary" id="regu-save-btn" style="flex:1;" onclick="saveRegu()">Simpan Regu</button>
+              <button class="btn btn-outline-sm" id="regu-cancel-btn" style="display:none;" onclick="cancelEditRegu()">Batal</button>
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:10px;">
+          <input type="text" id="regu-search" placeholder="🔍 Cari nama regu..." oninput="renderReguList()">
+        </div>
+        <div id="regu-list"></div>
+      </div>
     </section>
 
     <!-- ================= KAS ================= -->
@@ -362,10 +461,21 @@
 </div>
 
 <script>
-/* ============ DATA LAYER ============ */
-const STORAGE_KEY = 'lombaWargaData_v1';
-let data = loadData();
+/* ============ GITHUB API CONFIG ============ */
+const GITHUB_REPO = 'laosankarangtaruna-dot/17san';
+const GITHUB_FILE = 'data.json';
+const GITHUB_BRANCH = 'main';
+let ghToken = localStorage.getItem('gh_token') || '';
+let ghSha = null;
+let online = false;
 
+/* ============ DATA LAYER ============ */
+let data = emptyData();
+let saving = false;
+
+function emptyData(){
+  return { cabangLomba:[], peserta:[], regu:[], transaksi:[], juara:{}, hadiahConfig:{}, hadiahGlobal:defaultHadiahGlobal(), lombaExclusions:{}, lombaLolos:{}, bracket:{} };
+}
 function defaultHadiahGlobal(){
   return { anakPartisipasi:0, anakJuara1:0, anakJuara2:0, anakJuara3:0,
     ibuJuara1:0, ibuJuara2:0, ibuJuara3:0, dewasaJuara1:0, dewasaJuara2:0, dewasaJuara3:0 };
@@ -382,53 +492,150 @@ function seedCabangLomba(){
     { id: uid(), nama:'Estafet Tepung', kategori:'ibu', kelompok:'' },
   ];
 }
-function loadData(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(!parsed.hadiahConfig) parsed.hadiahConfig = {};
-      if(!parsed.hadiahGlobal) parsed.hadiahGlobal = defaultHadiahGlobal();
-      if(!parsed.lombaExclusions) parsed.lombaExclusions = {};
-      normalizeData();
-      return parsed;
-    }
-  }catch(e){}
-  return { cabangLomba: seedCabangLomba(), peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
+function ghHeaders(){
+  const h = { 'Accept':'application/vnd.github+json' };
+  if(ghToken) h['Authorization'] = 'Bearer ' + ghToken;
+  return h;
 }
-function saveData(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  if(!sbClient) return;
-  sbClient.from('lomba_data').upsert({ id: DATA_ROW_ID, payload: data, updated_at: new Date().toISOString() })
-    .then(({ error })=>{
-      if(error){ online = false; console.warn('Supabase save error', error); }
-      else { online = true; }
-      updateSyncStatus();
-    })
-    .catch(e=>{ online = false; console.warn('Supabase save failed', e); updateSyncStatus(); });
+async function ghGitApi(path, method, body){
+  const url = 'https://api.github.com/repos/'+GITHUB_REPO+'/'+path;
+  const opts = { method, headers: ghHeaders() };
+  if(body){ opts.body = JSON.stringify(body); }
+  return fetch(url, opts);
+}
+async function ghGetHeadCommit(){
+  const r = await ghGitApi('git/refs/heads/'+GITHUB_BRANCH, 'GET');
+  if(!r.ok) throw new Error('refs failed');
+  const ref = await r.json();
+  return ref.object.sha;
+}
+async function ghCreateBlob(rawContent){
+  const r = await ghGitApi('git/blobs','POST',{ encoding:'utf-8', content:rawContent });
+  if(!r.ok) throw new Error('blob failed');
+  return (await r.json()).sha;
+}
+async function ghGetTree(commitSha){
+  const r = await ghGitApi('git/commits/'+commitSha,'GET');
+  if(!r.ok) throw new Error('commit failed');
+  return (await r.json()).tree.sha;
+}
+async function ghCreateTree(baseTree, items){
+  const r = await ghGitApi('git/trees','POST',{ base_tree:baseTree, tree:items });
+  if(!r.ok) throw new Error('tree failed');
+  return (await r.json()).sha;
+}
+async function ghCreateCommit(message, treeSha, parents){
+  const r = await ghGitApi('git/commits','POST',{ message, tree:treeSha, parents });
+  if(!r.ok) throw new Error('commit failed');
+  return (await r.json()).sha;
+}
+async function ghUpdateRef(refSha){
+  return ghGitApi('git/refs/heads/'+GITHUB_BRANCH,'PATCH',{ sha:refSha, force:false });
+}
+async function ghGitSave(rawJson){
+  const commitSha = await ghGetHeadCommit();
+  const baseTree = await ghGetTree(commitSha);
+  const blobSha = await ghCreateBlob(rawJson);
+  const treeSha = await ghCreateTree(baseTree, [{ path:GITHUB_FILE, mode:'100644', type:'blob', sha:blobSha }]);
+  const newCommit = await ghCreateCommit('Update lomba data', treeSha, [commitSha]);
+  const res = await ghUpdateRef(newCommit);
+  if(res.ok){ ghSha = newCommit; return true; }
+  return false;
+}
+async function saveData(){
+  if(saving) return;
+  if(!ghToken){ online = false; updateSyncStatus(); return; }
+  saving = true;
+  try{
+    const rawJson = JSON.stringify(data,null,2);
+    const ok = await ghGitSave(rawJson);
+    if(ok){ online = true; }
+    else { online = false; console.warn('GitHub save failed'); }
+  }catch(e){ online = false; console.warn('GitHub save error', e); }
+  saving = false;
+  updateSyncStatus();
 }
 function saveDataAndRender(){
-  saveLocal();
   renderAll();
-  if(!sbClient) return;
-  sbClient.from('lomba_data').upsert({ id: DATA_ROW_ID, payload: data, updated_at: new Date().toISOString() })
-    .then(({ error })=>{
-      if(error){ online = false; console.warn('Supabase upsert error', error); }
-      else { online = true; }
-      updateSyncStatus();
-    })
-    .catch(e=>{ online = false; console.warn('Supabase upsert failed', e); updateSyncStatus(); });
+  saveData();
 }
-function normalizeData(){
-  if(!data.hadiahConfig) data.hadiahConfig = {};
-  if(!data.hadiahGlobal) data.hadiahGlobal = defaultHadiahGlobal();
-  if(!data.lombaExclusions) data.lombaExclusions = {};
-  if(!data.juara) data.juara = {};
-  if(!data.cabangLomba) data.cabangLomba = [];
-  if(!data.peserta) data.peserta = [];
-  if(!data.transaksi) data.transaksi = [];
-  data.peserta.forEach(p=>{
+async function loadFromServer(){
+  if(!ghToken){
+    data = emptyData();
+    data.cabangLomba = seedCabangLomba();
+    return false;
+  }
+  try{
+    const res = await fetch('https://api.github.com/repos/'+GITHUB_REPO+'/contents/'+GITHUB_FILE+'?ref='+GITHUB_BRANCH, { headers:ghHeaders() });
+    if(res.ok){
+      const file = await res.json();
+      ghSha = file.sha;
+      const decoded = decodeURIComponent(escape(atob(file.content)));
+      data = JSON.parse(decoded);
+      ensureFields(data);
+      if(!data.cabangLomba || data.cabangLomba.length === 0){
+        data.cabangLomba = seedCabangLomba();
+        await saveData();
+      }
+      online = true;
+      return true;
+    } else if(res.status === 404){
+      data = emptyData();
+      data.cabangLomba = seedCabangLomba();
+      ghSha = 'init';
+      await saveData();
+      return true;
+    }
+  }catch(e){
+    console.warn('GitHub load error', e);
+    data = emptyData();
+    data.cabangLomba = seedCabangLomba();
+  }
+  return false;
+}
+function ensureFields(d){
+  if(!d.hadiahConfig) d.hadiahConfig = {};
+  if(!d.hadiahGlobal) d.hadiahGlobal = defaultHadiahGlobal();
+  if(!d.lombaExclusions) d.lombaExclusions = {};
+  if(!d.lombaLolos) d.lombaLolos = {};
+  if(!d.juara) d.juara = {};
+  if(!d.cabangLomba) d.cabangLomba = [];
+  if(!d.peserta) d.peserta = [];
+  if(!d.transaksi) d.transaksi = [];
+  if(!d.bracket) d.bracket = {};
+  if(!d.regu) d.regu = [];
+  d.cabangLomba.forEach(l=>{ if(!l.tipe) l.tipe = 'perorangan'; });
+  d.peserta.forEach(p=>{
     if(p.kategori==='anak' && !p.kelas) p.kelas = '';
+  });
+}
+function updateSyncStatus(){
+  const st = document.getElementById('sync-status');
+  if(!st) return;
+  st.textContent = online ? 'Tersimpan di GitHub' : (ghToken ? 'Offline (lokal)' : 'Belum terhubung');
+  st.style.color = online ? 'var(--hijau)' : (ghToken ? 'var(--abu)' : 'var(--merah)');
+}
+function saveGitHubToken(){
+  const token = document.getElementById('gh-token-input').value.trim();
+  if(!token){ toast('Token wajib diisi'); return; }
+  localStorage.setItem('gh_token', token);
+  ghToken = token;
+  ghSha = null;
+  const msg = document.getElementById('gh-msg');
+  msg.textContent = 'Menyinkron...';
+  msg.style.color = 'var(--abu)';
+  loadFromServer().then(ok=>{
+    if(ok){
+      msg.textContent = '✅ Terhubung ke GitHub';
+      msg.style.color = 'var(--hijau)';
+      renderAll();
+      toast('Berhasil terhubung ke GitHub!');
+    } else {
+      msg.textContent = '❌ Gagal. Pastikan token benar & repo ada.';
+      msg.style.color = 'var(--merah)';
+    }
+  });
+}
   });
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -438,12 +645,6 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show');
   clearTimeout(window._toastT);
   window._toastT = setTimeout(()=>t.classList.remove('show'), 1800);
-}
-function updateSyncStatus(){
-  const st = document.getElementById('sync-status');
-  if(!st) return;
-  st.textContent = online ? '✅ Tersimpan online' : '⚠️ Offline (lokal)';
-  st.style.color = online ? 'var(--hijau)' : 'var(--merah)';
 }
 const KATEGORI_LABEL = {anak:'Anak-anak', ibu:'Ibu-ibu', dewasa:'Dewasa / Umum'};
 const KATEGORI_CLASS = {anak:'anak', ibu:'ibu', dewasa:'dewasa'};
@@ -471,6 +672,12 @@ function toggleForm(id){
   const open = wrap.classList.toggle('open');
   icon.style.transform = open ? 'rotate(45deg)' : 'rotate(0)';
 }
+function toggleLombaForm(){
+  toggleForm('form-lomba');
+  document.getElementById('lomba-kategori').value = 'anak';
+  document.getElementById('lomba-tipe').value = 'perorangan';
+  onLombaKategoriChange();
+}
 
 /* ============ RENDER ALL ============ */
 function renderAll(){
@@ -478,6 +685,10 @@ function renderAll(){
   renderLombaFilterChips();
   renderLombaList();
   renderPeserta();
+  if(reguMode === 'regu'){
+    renderReguAnggotaChecks();
+    renderReguList();
+  }
   renderKas();
   renderJuaraFilterChips();
   renderJuara();
@@ -492,10 +703,19 @@ function renderBeranda(){
   const masuk = data.transaksi.filter(t=>t.tipe==='masuk').reduce((a,b)=>a+Number(b.jumlah),0);
   const keluar = data.transaksi.filter(t=>t.tipe==='keluar').reduce((a,b)=>a+Number(b.jumlah),0);
   document.getElementById('st-saldo').textContent = rupiah(masuk-keluar);
-  const juaraSelesai = Object.keys(data.juara).filter(id=>{
+  let juaraSelesai = 0;
+  Object.keys(data.juara).filter(id=>{
     const j = data.juara[id];
-    return j && (j.juara1||j.juara2||j.juara3);
-  }).length;
+    return j && !j._anakCounts && (j.juara1||j.juara2||j.juara3);
+  }).forEach(()=> juaraSelesai++);
+  data.cabangLomba.filter(l=>l.kategori==='anak').forEach(l=>{
+    const br = data.bracket[l.id];
+    if(!br) return;
+    Object.values(br.kelas).forEach(bd=>{
+      const fj = bd.final.juara;
+      if(fj.juara1||fj.juara2||fj.juara3) juaraSelesai++;
+    });
+  });
   document.getElementById('st-juara-selesai').textContent = juaraSelesai;
 
   document.getElementById('bd-anak').textContent = data.peserta.filter(p=>p.kategori==='anak').length;
@@ -508,6 +728,12 @@ function renderBeranda(){
 
 /* ============ CABANG LOMBA ============ */
 let openLombaPeserta = null;
+let expandedRegu = new Set();
+function toggleReguDetail(id, evt){
+  if(evt){ evt.preventDefault(); evt.stopPropagation(); }
+  if(expandedRegu.has(id)) expandedRegu.delete(id); else expandedRegu.add(id);
+  renderAll();
+}
 function isExcluded(lombaId, pesertaId){
   return (data.lombaExclusions[lombaId]||[]).includes(pesertaId);
 }
@@ -515,6 +741,11 @@ function getPesertaForLomba(lombaId){
   const lomba = data.cabangLomba.find(l=>l.id===lombaId);
   if(!lomba) return [];
   return data.peserta.filter(p=>p.kategori===lomba.kategori && !isExcluded(lombaId, p.id));
+}
+function getReguForLomba(lombaId){
+  const lomba = data.cabangLomba.find(l=>l.id===lombaId);
+  if(!lomba) return [];
+  return getReguForKategori(lomba.kategori).filter(r=> !isExcluded(lombaId, r.id));
 }
 function toggleLombaPesertaPanel(lombaId){
   openLombaPeserta = (openLombaPeserta===lombaId) ? null : lombaId;
@@ -529,12 +760,29 @@ function togglePesertaLomba(lombaId, pesertaId, checked){
   saveDataAndRender();
   renderAll();
 }
+function onLombaKategoriChange(){
+  const kategori = document.getElementById('lomba-kategori').value;
+  document.getElementById('lomba-kelas-wrap').style.display = kategori==='anak' ? 'block' : 'none';
+  document.getElementById('lomba-kelompok-wrap').style.display = kategori==='anak' ? 'none' : 'block';
+  if(kategori==='anak') populateLombaKelasSelect();
+}
+function populateLombaKelasSelect(){
+  const sel = document.getElementById('lomba-kelas-select');
+  const kelasList = [...new Set(data.peserta.filter(p=>p.kategori==='anak').map(p=>p.kelas).filter(Boolean))].sort();
+  sel.innerHTML = `<option value="">Semua kelas (tidak dibatasi)</option>` + kelasList.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+  if(kelasList.length===0){
+    sel.innerHTML += `<option value="" disabled>Belum ada kelas — isi kelas peserta anak dulu di tab Peserta</option>`;
+  }
+}
 function saveLomba(){
   const nama = document.getElementById('lomba-nama').value.trim();
   const kategori = document.getElementById('lomba-kategori').value;
-  const kelompok = document.getElementById('lomba-kelompok').value.trim();
+  const tipe = document.getElementById('lomba-tipe').value;
+  const kelompok = kategori==='anak'
+    ? document.getElementById('lomba-kelas-select').value.trim()
+    : document.getElementById('lomba-kelompok').value.trim();
   if(!nama){ toast('Nama cabang lomba wajib diisi'); return; }
-  data.cabangLomba.push({ id: uid(), nama, kategori, kelompok });
+  data.cabangLomba.push({ id: uid(), nama, kategori, kelompok, tipe });
   saveDataAndRender();
   document.getElementById('lomba-nama').value='';
   document.getElementById('lomba-kelompok').value='';
@@ -547,62 +795,209 @@ function deleteLomba(id){
   data.cabangLomba = data.cabangLomba.filter(l=>l.id!==id);
   delete data.juara[id];
   delete data.lombaExclusions[id];
+  delete data.lombaLolos[id];
   delete data.hadiahConfig[id];
+  delete data.bracket[id];
   if(openLombaPeserta===id) openLombaPeserta = null;
   saveData(); toast('Cabang lomba dihapus'); renderAll();
 }
-let lombaFilter = 'semua';
+function toggleTipeLomba(id, newTipe){
+  const lomba = data.cabangLomba.find(l=>l.id===id);
+  if(!lomba || lomba.tipe === newTipe) return;
+  const label = newTipe === 'beregu' ? 'Beregu' : 'Perorangan';
+  if(!confirm(`Ganti jenis lomba "${lomba.nama}" ke ${label}?`)) return;
+  lomba.tipe = newTipe;
+  delete data.bracket[id];
+  delete data.juara[id];
+  delete data.lombaLolos[id];
+  if(newTipe === 'beregu') openLombaPeserta = id;
+  saveDataAndRender();
+  toast('Jenis lomba diubah ke ' + label);
+}
+let lombaFilter = 'anak';
 function renderLombaFilterChips(){
   const wrap = document.getElementById('lomba-filter-chips');
-  const cats = [['semua','Semua'],['anak','Anak-anak'],['ibu','Ibu-ibu'],['dewasa','Dewasa']];
+  const cats = [['anak','Anak-anak'],['ibu','Ibu-ibu'],['dewasa','Dewasa']];
   wrap.innerHTML = cats.map(([k,l])=>`<div class="chip ${lombaFilter===k?'active':''}" onclick="lombaFilter='${k}';renderLombaList()">${l}</div>`).join('');
 }
 function renderLombaList(){
   const list = document.getElementById('lomba-list');
-  let items = data.cabangLomba;
-  if(lombaFilter!=='semua') items = items.filter(l=>l.kategori===lombaFilter);
+  let items = data.cabangLomba.filter(l=>l.kategori===lombaFilter);
   if(items.length===0){
     list.innerHTML = `<div class="empty"><span class="em">🏁</span>Belum ada cabang lomba.<br>Tambahkan lewat tombol + di atas.</div>`;
     return;
   }
   list.innerHTML = items.map(l=>{
-    const pesertaLomba = getPesertaForLomba(l.id);
-    const kategoriPeserta = data.peserta.filter(p=>p.kategori===l.kategori);
+    const isBeregu = l.tipe === 'beregu';
+    const pesertaLomba = isBeregu ? getReguForLomba(l.id) : getPesertaForLomba(l.id);
+    const kategoriPeserta = isBeregu ? getReguForKategori(l.kategori) : data.peserta.filter(p=>p.kategori===l.kategori);
     const panelOpen = openLombaPeserta === l.id;
+    const isBracket = l.kategori === 'anak';
+    const tipeBadge = `<select onchange="toggleTipeLomba('${l.id}',this.value)" style="font-size:10px;font-weight:700;padding:2px 6px;border:1px solid var(--garis);border-radius:12px;background:#fff;color:var(--ink);cursor:pointer;margin-top:4px;">
+      <option value="perorangan"${!isBeregu?' selected':''}>👤 Perorangan</option>
+      <option value="beregu"${isBeregu?' selected':''}>👥 Beregu</option>
+    </select>`;
     return `<div class="item">
       <div class="item-top">
         <div>
           <div class="item-name">${esc(l.nama)}</div>
-          <div class="item-sub">${pesertaLomba.length} dari ${kategoriPeserta.length} peserta ${KATEGORI_LABEL[l.kategori].toLowerCase()} ikut</div>
-          <span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span>
+          ${l.kelompok? `<div class="item-sub" style="font-weight:600;color:var(--merah-tua);">${l.kategori==='anak'?'🎒 Kelas':'👥 Kelompok'}: ${esc(l.kelompok)}</div>` : ''}
+          <div class="item-sub">${pesertaLomba.length} dari ${kategoriPeserta.length} ${isBeregu?'regu':'peserta'} ${KATEGORI_LABEL[l.kategori].toLowerCase()} ikut</div>
+          ${tipeBadge}
         </div>
         <div class="item-actions">
+          <button class="icon-btn" onclick="toggleLombaPesertaPanel('${l.id}')" title="Atur Peserta Ikut/Tidak">${panelOpen?'➖':'➕'}</button>
           <button class="icon-btn del" onclick="deleteLomba('${l.id}')">🗑️</button>
         </div>
       </div>
-      <button class="btn btn-outline-sm" style="width:100%;margin-top:10px;" onclick="toggleLombaPesertaPanel('${l.id}')">👥 Kelola Peserta ${panelOpen? '▲':'▼'}</button>
+      ${isBracket ? renderBracket(l) : renderLombaPesertaGrouped(l, pesertaLomba)}
       ${panelOpen? renderLombaPesertaPanel(l, kategoriPeserta) : ''}
     </div>`;
   }).join('');
 }
-function renderLombaPesertaPanel(l, kategoriPeserta){
-  if(kategoriPeserta.length===0){
-    return `<div style="font-size:12px;color:var(--abu);padding:10px 2px 2px;">Belum ada peserta kategori ${KATEGORI_LABEL[l.kategori].toLowerCase()}.</div>`;
+function toggleLolos(lombaId, pesertaId){
+  if(!data.lombaLolos[lombaId]) data.lombaLolos[lombaId] = [];
+  const arr = data.lombaLolos[lombaId];
+  const idx = arr.indexOf(pesertaId);
+  if(idx>=0) arr.splice(idx,1); else arr.push(pesertaId);
+  saveDataAndRender();
+  renderAll();
+}
+function renderLombaPesertaGrouped(l, pesertaLomba){
+  const isBeregu = l.tipe === 'beregu';
+  if(pesertaLomba.length===0){
+    const emptyMsg = isBeregu ? 'Belum ada regu yang ikut lomba ini.' : 'Belum ada peserta yang ikut lomba ini.';
+    return `<div style="font-size:12px;color:var(--abu);padding:10px 2px 2px;">${emptyMsg}</div>`;
   }
-  const rows = kategoriPeserta.map(p=>{
-    const checked = !isExcluded(l.id, p.id);
-    return `<label style="display:flex;align-items:center;gap:9px;padding:7px 2px;border-bottom:1px solid var(--garis);font-size:13px;">
-      <input type="checkbox" ${checked?'checked':''} onchange="togglePesertaLomba('${l.id}','${p.id}', this.checked)" style="width:17px;height:17px;">
-      ${esc(p.nama)}
-    </label>`;
+  const lolos = data.lombaLolos[l.id] || [];
+  const renderNames = (arr)=> arr.map((p,i)=>{
+    const isLolos = lolos.includes(p.id);
+    const expanded = isBeregu && expandedRegu.has(p.id);
+    const subText = isBeregu && p.anggota ? ` <span style="font-size:11px;color:var(--abu);">(${(p.anggota||[]).length} org)</span> <span onclick="toggleReguDetail('${p.id}', event)" style="font-size:11px;color:var(--merah-tua);font-weight:700;cursor:pointer;">${expanded?'▲ Tutup':'▼ Anggota'}</span>` : '';
+    const membersLine = expanded ? `<div style="font-size:11.5px;color:var(--abu);padding:0 4px 8px 28px;">${(p.anggota||[]).map(pid=>{const m=data.peserta.find(x=>x.id===pid); return m?esc(m.nama):null;}).filter(Boolean).join(', ')}</div>` : '';
+    return `<div>
+      <div onclick="toggleLolos('${l.id}','${p.id}')" style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:${expanded?'none':'1px solid var(--garis)'};cursor:pointer;font-size:13.5px;${isLolos?'background:#EAF7EC;':''}">
+        <span style="width:20px;color:var(--abu);font-size:12px;">${i+1}.</span>
+        <span style="flex:1;${isLolos?'font-weight:700;color:#1E7B34;':''}">${esc(p.nama)}${subText}</span>
+        ${isLolos? '<span style="font-size:12px;color:#1E7B34;font-weight:700;">✅ Juara/Lolos</span>' : ''}
+      </div>
+      ${membersLine}
+    </div>`;
   }).join('');
-  return `<div style="margin-top:8px;">${rows}</div>`;
+
+  if(isBeregu || l.kategori!=='anak'){
+    return `<div style="margin-top:10px;">${renderNames(pesertaLomba)}</div>`;
+  }
+
+  const groups = {};
+  pesertaLomba.forEach(p=>{
+    const k = p.kelas || 'Tanpa Kelas';
+    if(!groups[k]) groups[k] = [];
+    groups[k].push(p);
+  });
+  const kelasKeys = Object.keys(groups).sort((a,b)=> a==='Tanpa Kelas' ? 1 : b==='Tanpa Kelas' ? -1 : a.localeCompare(b));
+  return `<div style="margin-top:10px;">${kelasKeys.map(k=>`
+    <div style="font-size:12px;font-weight:800;color:var(--merah-tua);text-transform:uppercase;margin:10px 0 2px;">${k==='Tanpa Kelas'? 'TANPA KELAS' : 'KELAS: '+esc(k)}</div>
+    ${renderNames(groups[k])}
+  `).join('')}</div>`;
+}
+function getUnassignedPeserta(kategori){
+  return data.peserta.filter(p=> p.kategori===kategori && !(data.regu||[]).some(r=> (r.anggota||[]).includes(p.id)));
+}
+function quickCreateRegu(lombaId, kategori){
+  const namaInput = document.getElementById('quick-regu-nama-'+lombaId);
+  const nama = namaInput.value.trim();
+  if(!nama){ toast('Nama regu wajib diisi'); return; }
+  const kelasInput = document.getElementById('quick-regu-kelas-'+lombaId);
+  const kelas = kelasInput ? kelasInput.value.trim() : '';
+  const checks = document.querySelectorAll('#quick-regu-checks-'+lombaId+' input[type=checkbox]:checked');
+  const anggota = Array.from(checks).map(c=> c.dataset.pid);
+  if(anggota.length < 2){ toast('Minimal 2 anggota per regu'); return; }
+  if(!data.regu) data.regu = [];
+  data.regu.push({ id: uid(), nama, kategori, kelas, anggota });
+  saveDataAndRender();
+  toast('Regu "'+nama+'" dibuat & otomatis ikut lomba ini');
+}
+function renderLombaPesertaPanel(l, kategoriPeserta){
+  const isBeregu = l.tipe === 'beregu';
+  let existingSection = '';
+  if(kategoriPeserta.length===0){
+    const emptyMsg = isBeregu ? `Belum ada regu ${KATEGORI_LABEL[l.kategori].toLowerCase()}.` : `Belum ada peserta kategori ${KATEGORI_LABEL[l.kategori].toLowerCase()}.`;
+    existingSection = `<div style="font-size:12px;color:var(--abu);padding:6px 2px 2px;">${emptyMsg}</div>`;
+  } else {
+    const rows = kategoriPeserta.map(item=>{
+      const checked = !isExcluded(l.id, item.id);
+      const expanded = isBeregu && expandedRegu.has(item.id);
+      const label = isBeregu
+        ? esc(item.nama) + ` <span style="font-size:11px;color:var(--abu);">(${(item.anggota||[]).length} anggota)</span> <span onclick="toggleReguDetail('${item.id}', event)" style="font-size:11px;color:var(--merah-tua);font-weight:700;cursor:pointer;">${expanded?'▲ Tutup':'▼ Anggota'}</span>`
+        : esc(item.nama);
+      const membersLine = expanded ? `<div style="font-size:11.5px;color:var(--abu);padding:0 4px 8px 30px;">${getReguPeserta(item).map(m=>esc(m.nama)).join(', ')}</div>` : '';
+      return `<div style="border-bottom:1px solid var(--garis);">
+        <label style="display:flex;align-items:center;gap:9px;padding:7px 2px;font-size:13px;">
+          <input type="checkbox" ${checked?'checked':''} onchange="togglePesertaLomba('${l.id}','${item.id}', this.checked)" style="width:17px;height:17px;">
+          ${label}
+        </label>
+        ${membersLine}
+      </div>`;
+    }).join('');
+    const entityLabel = isBeregu ? 'regu' : 'peserta';
+    existingSection = `<div style="font-size:12px;font-weight:700;color:var(--abu);margin-bottom:4px;">✅ Centang ${entityLabel} yang ikut lomba ini:</div>${rows}`;
+  }
+
+  let quickCreateSection = '';
+  if(isBeregu){
+    const unassigned = getUnassignedPeserta(l.kategori);
+    if(unassigned.length > 0){
+      const checks = unassigned.map(p=> `<label style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--garis);font-size:13px;">
+        <input type="checkbox" data-pid="${p.id}" style="width:17px;height:17px;">
+        ${esc(p.nama)} ${p.kelas ? `<span class="badge anak" style="font-size:10px;">${esc(p.kelas)}</span>` : ''}
+      </label>`).join('');
+      const kelasField = l.kategori === 'anak' ? `<div class="field" style="margin-bottom:8px;">
+          <input type="text" id="quick-regu-kelas-${l.id}" placeholder="Kelas regu ini, mis. Kelas 4 (opsional)">
+        </div>` : '';
+      quickCreateSection = `<div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--garis);">
+        <div style="font-size:12px;font-weight:700;color:var(--merah-tua);margin-bottom:6px;">➕ Buat Regu Baru dari Peserta ${KATEGORI_LABEL[l.kategori].toLowerCase()} yang Belum Punya Regu (${unassigned.length}):</div>
+        <div class="field" style="margin-bottom:8px;">
+          <input type="text" id="quick-regu-nama-${l.id}" placeholder="Nama regu, mis. Regu Merah">
+        </div>
+        ${kelasField}
+        <div id="quick-regu-checks-${l.id}" style="max-height:180px;overflow-y:auto;margin-bottom:8px;">${checks}</div>
+        <button class="btn btn-primary" style="width:100%;" onclick="quickCreateRegu('${l.id}','${l.kategori}')">Buat Regu &amp; Ikutkan Lomba Ini</button>
+      </div>`;
+    } else if(data.peserta.filter(p=>p.kategori===l.kategori).length===0){
+      quickCreateSection = `<div style="font-size:11.5px;color:var(--abu);margin-top:6px;">Belum ada peserta ${KATEGORI_LABEL[l.kategori].toLowerCase()} terdaftar. Tambahkan dulu di tab Peserta.</div>`;
+    }
+  }
+
+  return `<div style="margin-top:10px;border-top:1px dashed var(--garis);padding-top:10px;">
+    ${existingSection}
+    ${quickCreateSection}
+  </div>`;
 }
 
 /* ============ PESERTA ============ */
 let pesertaKategoriTab = 'anak';
 let pesertaKelasFilter = 'semua';
 const PESERTA_KAT_MAP = {anak:'anak', dewasa:'dewasa', ibu:'ibu'};
+let reguMode = 'peserta';
+let editingReguId = null;
+function switchReguMode(mode){
+  reguMode = mode;
+  document.getElementById('btn-regu-mode-peserta').classList.toggle('active', mode==='peserta');
+  document.getElementById('btn-regu-mode-regu').classList.toggle('active', mode==='regu');
+  document.getElementById('regu-peserta-section').style.display = mode==='peserta' ? 'block' : 'none';
+  document.getElementById('regu-regu-section').style.display = mode==='regu' ? 'block' : 'none';
+  if(mode==='regu'){
+    if(!editingReguId){
+      document.getElementById('regu-kategori').value = pesertaKategoriTab;
+      document.getElementById('regu-kelas-wrap').style.display = pesertaKategoriTab==='anak' ? 'block' : 'none';
+    }
+    renderReguAnggotaChecks();
+    renderReguList();
+  } else {
+    renderPeserta();
+  }
+}
 function switchPesertaTab(kat){
   pesertaKategoriTab = kat;
   ['anak','dewasa','ibu'].forEach(k=>{
@@ -619,7 +1014,16 @@ function switchPesertaTab(kat){
     kelasSel.value='';
   }
   pesertaKelasFilter = 'semua';
-  renderPeserta();
+  if(reguMode === 'regu'){
+    if(!editingReguId){
+      document.getElementById('regu-kategori').value = pesertaKategoriTab;
+      document.getElementById('regu-kelas-wrap').style.display = pesertaKategoriTab==='anak' ? 'block' : 'none';
+    }
+    renderReguAnggotaChecks();
+    renderReguList();
+  } else {
+    renderPeserta();
+  }
 }
 function savePeserta(){
   const nama = document.getElementById('peserta-nama').value.trim();
@@ -642,9 +1046,15 @@ function deletePeserta(id){
   Object.keys(data.lombaExclusions).forEach(lombaId=>{
     data.lombaExclusions[lombaId] = data.lombaExclusions[lombaId].filter(pid=>pid!==id);
   });
+  Object.keys(data.lombaLolos).forEach(lombaId=>{
+    data.lombaLolos[lombaId] = data.lombaLolos[lombaId].filter(pid=>pid!==id);
+  });
   Object.keys(data.juara).forEach(lombaId=>{
     const j = data.juara[lombaId];
     ['juara1','juara2','juara3'].forEach(pos=>{ if(j[pos]===id) j[pos] = null; });
+  });
+  if(data.regu) data.regu.forEach(r=>{
+    r.anggota = (r.anggota||[]).filter(pid=> pid!==id);
   });
   saveData(); toast('Peserta dihapus'); renderAll();
 }
@@ -692,6 +1102,148 @@ function renderPeserta(){
       </div>
     </div>`;
   }).join('');
+}
+
+/* ============ REGU ============ */
+function getReguForKategori(kategori){
+  return (data.regu||[]).filter(r=> r.kategori === kategori);
+}
+function getReguById(reguId){
+  return (data.regu||[]).find(r=> r.id === reguId);
+}
+function getReguPeserta(regu){
+  return (regu.anggota||[]).map(pid=> data.peserta.find(p=>p.id===pid)).filter(Boolean);
+}
+function updateReguAnggotaCount(){
+  const counter = document.getElementById('regu-anggota-count');
+  if(!counter) return;
+  const n = document.querySelectorAll('#regu-anggota-checks input[type=checkbox]:checked').length;
+  counter.textContent = `${n} dipilih (minimal 2)`;
+  counter.style.color = n < 2 ? 'var(--merah)' : 'var(--hijau)';
+}
+function onReguKategoriChange(){
+  const kategori = document.getElementById('regu-kategori').value;
+  document.getElementById('regu-kelas-wrap').style.display = kategori==='anak' ? 'block' : 'none';
+  if(kategori!=='anak') document.getElementById('regu-kelas').value = '';
+  renderReguAnggotaChecks();
+}
+function saveRegu(){
+  const nama = document.getElementById('regu-nama').value.trim();
+  if(!nama){ toast('Nama regu wajib diisi'); return; }
+  const kategori = document.getElementById('regu-kategori').value;
+  const kelas = kategori==='anak' ? document.getElementById('regu-kelas').value.trim() : '';
+  const checks = document.querySelectorAll('#regu-anggota-checks input[type=checkbox]:checked');
+  const anggota = Array.from(checks).map(c=> c.dataset.pid);
+  if(anggota.length < 2){ toast('Minimal 2 anggota per regu'); return; }
+  if(!data.regu) data.regu = [];
+  if(editingReguId){
+    const r = getReguById(editingReguId);
+    if(r){
+      r.nama = nama; r.kategori = kategori; r.kelas = kelas; r.anggota = anggota;
+      toast('Regu diperbarui');
+    }
+  } else {
+    data.regu.push({ id: uid(), nama, kategori, kelas, anggota });
+    toast('Regu tersimpan');
+  }
+  cancelEditRegu();
+  saveDataAndRender();
+  renderReguAnggotaChecks();
+  renderReguList();
+}
+function startEditRegu(id){
+  const r = getReguById(id);
+  if(!r) return;
+  editingReguId = id;
+  document.getElementById('regu-nama').value = r.nama;
+  document.getElementById('regu-kategori').value = r.kategori;
+  document.getElementById('regu-kelas-wrap').style.display = r.kategori==='anak' ? 'block' : 'none';
+  document.getElementById('regu-kelas').value = r.kelas || '';
+  renderReguAnggotaChecks();
+  (r.anggota||[]).forEach(pid=>{
+    const cb = document.querySelector(`#regu-anggota-checks input[data-pid="${pid}"]`);
+    if(cb) cb.checked = true;
+  });
+  updateReguAnggotaCount();
+  document.getElementById('regu-save-btn').textContent = '💾 Update Regu';
+  document.getElementById('regu-cancel-btn').style.display = 'inline-block';
+  const formWrap = document.getElementById('form-regu');
+  if(!formWrap.classList.contains('open')) toggleForm('form-regu');
+  formWrap.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelEditRegu(){
+  editingReguId = null;
+  document.getElementById('regu-nama').value = '';
+  document.getElementById('regu-kategori').value = pesertaKategoriTab;
+  document.getElementById('regu-kelas-wrap').style.display = pesertaKategoriTab==='anak' ? 'block' : 'none';
+  document.getElementById('regu-kelas').value = '';
+  document.getElementById('regu-save-btn').textContent = 'Simpan Regu';
+  document.getElementById('regu-cancel-btn').style.display = 'none';
+  renderReguAnggotaChecks();
+}
+function deleteRegu(id){
+  if(!confirm('Hapus regu ini?')) return;
+  data.regu = data.regu.filter(r=> r.id !== id);
+  Object.keys(data.lombaExclusions).forEach(lombaId=>{
+    data.lombaExclusions[lombaId] = data.lombaExclusions[lombaId].filter(rid=> rid !== id);
+  });
+  if(editingReguId === id) cancelEditRegu();
+  saveDataAndRender();
+  toast('Regu dihapus');
+  renderReguList();
+}
+function renderReguAnggotaChecks(){
+  const wrap = document.getElementById('regu-anggota-checks');
+  if(!wrap) return;
+  const kategoriSel = document.getElementById('regu-kategori');
+  const kategori = kategoriSel ? kategoriSel.value : pesertaKategoriTab;
+  const peserta = data.peserta.filter(p=> p.kategori === kategori);
+  if(peserta.length === 0){
+    wrap.innerHTML = `<div style="font-size:12px;color:var(--abu);padding:8px 0;">Belum ada peserta ${KATEGORI_LABEL[kategori].toLowerCase()}.</div>`;
+    updateReguAnggotaCount();
+    return;
+  }
+  wrap.innerHTML = peserta.map(p=> {
+    const reguLain = (data.regu||[]).find(r=> r.id !== editingReguId && (r.anggota||[]).includes(p.id));
+    return `<label style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--garis);font-size:13px;">
+    <input type="checkbox" data-pid="${p.id}" style="width:17px;height:17px;" onchange="updateReguAnggotaCount()">
+    ${esc(p.nama)} ${p.kelas ? `<span class="badge anak" style="font-size:10px;">${esc(p.kelas)}</span>` : ''}
+    ${reguLain ? `<span style="font-size:10.5px;color:var(--emas);font-weight:600;">⚠ sudah di ${esc(reguLain.nama)}</span>` : ''}
+  </label>`;
+  }).join('');
+  updateReguAnggotaCount();
+}
+function renderReguList(){
+  const list = document.getElementById('regu-list');
+  if(!list) return;
+  const search = (document.getElementById('regu-search')?.value||'').toLowerCase();
+  let regu = getReguForKategori(pesertaKategoriTab);
+  if(search) regu = regu.filter(r=> r.nama.toLowerCase().includes(search));
+  const unassigned = getUnassignedPeserta(pesertaKategoriTab);
+  const unassignedHtml = unassigned.length === 0 ? '' : `<div style="background:#FDECEC;border:1px solid #F5B5B5;border-radius:8px;padding:8px 10px;margin-top:10px;font-size:12px;color:var(--merah);">
+    <b>⚠️ ${unassigned.length} peserta ${KATEGORI_LABEL[pesertaKategoriTab].toLowerCase()} belum punya regu:</b> ${unassigned.map(p=>esc(p.nama)).join(', ')}
+  </div>`;
+  if(regu.length === 0){
+    list.innerHTML = `<div style="font-size:12px;color:var(--abu);padding:10px 2px;">Belum ada regu ${KATEGORI_LABEL[pesertaKategoriTab].toLowerCase()}${search? ' yang cocok':''}.</div>${unassignedHtml}`;
+    return;
+  }
+  regu = [...regu].sort((a,b)=> a.nama.localeCompare(b.nama));
+  list.innerHTML = regu.map(r=>{
+    const anggota = getReguPeserta(r);
+    return `<div class="item">
+      <div class="item-top">
+        <div>
+          <div class="item-name">${esc(r.nama)}</div>
+          <div class="item-sub">${anggota.length} anggota: ${anggota.map(a=> esc(a.nama)).join(', ')}</div>
+          <span class="badge ${KATEGORI_CLASS[r.kategori]}">${KATEGORI_LABEL[r.kategori]}</span> ${r.kelas? `<span class="badge anak">${esc(r.kelas)}</span>`:''}
+        </div>
+        <div class="item-actions">
+          <button class="icon-btn" onclick="startEditRegu('${r.id}')">✏️</button>
+          <button class="icon-btn del" onclick="deleteRegu('${r.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') + unassignedHtml;
 }
 
 /* ============ KAS ============ */
@@ -780,6 +1332,326 @@ function formatTgl(iso){
   return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 }
 
+/* ============ BRACKET (PER-KELAS, AUTO) ============ */
+const BRACKET_MAX_KLOTER = 5;
+
+function calcSplit(total){
+  if(total <= BRACKET_MAX_KLOTER) return { sizes:[total], lolos: total<=3 ? 1 : 2 };
+  const num = Math.ceil(total / BRACKET_MAX_KLOTER);
+  const base = Math.floor(total / num);
+  const rem = total % num;
+  const sizes = [];
+  for(let i=0; i<num; i++) sizes.push(i<rem ? base+1 : base);
+  const avg = total / num;
+  const lolos = avg <= 3 ? 1 : 2;
+  return { sizes, lolos };
+}
+
+function autoCreateBracket(lombaId){
+  const lomba = data.cabangLomba.find(l=>l.id===lombaId);
+  if(!lomba) return;
+  const isBeregu = lomba.tipe === 'beregu';
+  const peserta = isBeregu ? getReguForLomba(lombaId) : getPesertaForLomba(lombaId);
+  if(peserta.length < 2) return;
+  const byKelas = {};
+  if(isBeregu){
+    if(lomba.kategori === 'anak'){
+      peserta.forEach(p=>{
+        const k = p.kelas || 'Tanpa Kelas';
+        if(!byKelas[k]) byKelas[k] = [];
+        byKelas[k].push(p);
+      });
+    } else {
+      byKelas['Peserta'] = peserta;
+    }
+  } else {
+    peserta.forEach(p=>{
+      const k = p.kelas || 'Tanpa Kelas';
+      if(!byKelas[k]) byKelas[k] = [];
+      byKelas[k].push(p);
+    });
+  }
+  const kelasData = {};
+  Object.keys(byKelas).sort((a,b)=> a==='Tanpa Kelas'?1:b==='Tanpa Kelas'?-1:a.localeCompare(b)).forEach(kelas=>{
+    const list = byKelas[kelas];
+    const kloters = [];
+    if(isBeregu){
+      kloters.push({ peserta: list.map(p=>p.id), lolos:[], lolosMax: list.length });
+    } else {
+      const split = calcSplit(list.length);
+      let idx = 0;
+      split.sizes.forEach(sz=>{
+        kloters.push({ peserta: list.slice(idx, idx+sz).map(p=>p.id), lolos:[], lolosMax:split.lolos });
+        idx += sz;
+      });
+    }
+    kelasData[kelas] = {
+      kloters: kloters,
+      lolosPerKloter: isBeregu ? list.length : calcSplit(list.length).lolos,
+      final: { peserta:[], juara:{ juara1:null, juara2:null, juara3:null } }
+    };
+  });
+  data.bracket[lombaId] = { kelas: kelasData };
+}
+function syncBracketPeserta(lombaId){
+  const br = data.bracket[lombaId];
+  if(!br) return;
+  const lomba = data.cabangLomba.find(l=>l.id===lombaId);
+  if(!lomba) return;
+  const isBeregu = lomba.tipe === 'beregu';
+  const peserta = isBeregu ? getReguForLomba(lombaId) : getPesertaForLomba(lombaId);
+  const allInBracket = new Set();
+  const allLolos = {};
+  Object.values(br.kelas).forEach(bd=>{
+    bd.kloters.forEach(k=>{
+      k.peserta.forEach(pid=> allInBracket.add(pid));
+      k.lolos.forEach(pid=>{
+        if(!allLolos[pid]) allLolos[pid] = true;
+      });
+    });
+  });
+  const hasMissing = peserta.some(p=> !allInBracket.has(p.id));
+  if(isBeregu){
+    if(!hasMissing) return;
+    const missing = peserta.filter(p=> !allInBracket.has(p.id));
+    const missingByKelas = {};
+    if(lomba.kategori === 'anak'){
+      missing.forEach(p=>{
+        const k = p.kelas || 'Tanpa Kelas';
+        if(!missingByKelas[k]) missingByKelas[k] = [];
+        missingByKelas[k].push(p);
+      });
+    } else {
+      missingByKelas['Peserta'] = missing;
+    }
+    Object.keys(missingByKelas).forEach(kelas=>{
+      const list = missingByKelas[kelas];
+      if(!br.kelas[kelas]){
+        br.kelas[kelas] = {
+          kloters: [{ peserta: list.map(p=>p.id), lolos:[], lolosMax: list.length }],
+          lolosPerKloter: list.length,
+          final: { peserta:[], juara:{ juara1:null, juara2:null, juara3:null } }
+        };
+      } else {
+        const bd = br.kelas[kelas];
+        if(bd.kloters.length === 0){
+          bd.kloters.push({ peserta: list.map(p=>p.id), lolos:[], lolosMax:list.length });
+        } else {
+          const lastKloter = bd.kloters[bd.kloters.length - 1];
+          list.forEach(p=> lastKloter.peserta.push(p.id));
+        }
+      }
+    });
+    return;
+  }
+  let needsRedist = false;
+  Object.values(br.kelas).forEach(bd=>{
+    const total = bd.kloters.reduce((a,k)=> a+k.peserta.length, 0);
+    const split = calcSplit(total);
+    const sizes = bd.kloters.map(k=> k.peserta.length).sort((a,b)=> a-b);
+    const expected = [...split.sizes].sort((a,b)=> a-b);
+    if(sizes.length !== expected.length || sizes.some((s,i)=> s!==expected[i])) needsRedist = true;
+  });
+  if(!hasMissing && !needsRedist) return;
+  const byKelas = {};
+  if(isBeregu){
+    byKelas['Peserta'] = peserta;
+  } else {
+    peserta.forEach(p=>{
+      const k = p.kelas || 'Tanpa Kelas';
+      if(!byKelas[k]) byKelas[k] = [];
+      byKelas[k].push(p);
+    });
+  }
+  Object.keys(byKelas).forEach(kelas=>{
+    if(!br.kelas[kelas]) return;
+    const bd = br.kelas[kelas];
+    const list = byKelas[kelas];
+    const split = calcSplit(list.length);
+    const newKloters = [];
+    let idx = 0;
+    split.sizes.forEach(sz=>{
+      const kloterPeserta = list.slice(idx, idx+sz).map(p=>p.id);
+      const newLolos = kloterPeserta.filter(pid=> allLolos[pid]).slice(0, split.lolos);
+      newKloters.push({ peserta:kloterPeserta, lolos:newLolos, lolosMax:split.lolos });
+      idx += sz;
+    });
+    bd.kloters = newKloters;
+    bd.lolosPerKloter = split.lolos;
+  });
+}
+function resetBracket(lombaId){
+  if(!confirm('Hapus bagan lomba ini?')) return;
+  delete data.bracket[lombaId];
+  saveDataAndRender();
+  toast('Bagan dihapus');
+}
+function toggleKloterLolos(lombaId, kelas, kIdx, pesertaId){
+  const br = data.bracket[lombaId];
+  if(!br || !br.kelas[kelas]) return;
+  const bd = br.kelas[kelas];
+  const k = bd.kloters[kIdx];
+  if(!k) return;
+  const maxLolos = k.lolosMax || bd.lolosPerKloter || 2;
+  const idx = k.lolos.indexOf(pesertaId);
+  if(idx >= 0){
+    k.lolos.splice(idx, 1);
+  } else {
+    if(k.lolos.length >= maxLolos){ toast('Maks '+maxLolos+' lolos per kloter'); return; }
+    k.lolos.push(pesertaId);
+  }
+  syncBracketFinal(lombaId, kelas);
+  saveDataAndRender();
+}
+function syncBracketFinal(lombaId, kelas){
+  const br = data.bracket[lombaId];
+  if(!br || !br.kelas[kelas]) return;
+  const bd = br.kelas[kelas];
+  const allLolos = [];
+  bd.kloters.forEach(k=>{ k.lolos.forEach(pid=>{ if(!allLolos.includes(pid)) allLolos.push(pid); }); });
+  const fj = bd.final.juara;
+  ['juara1','juara2','juara3'].forEach(pos=>{
+    if(fj[pos] && !allLolos.includes(fj[pos])) fj[pos] = null;
+  });
+  bd.final.peserta = allLolos;
+  data.juara[lombaId] = data.juara[lombaId] || {};
+}
+function setBracketJuara(lombaId, kelas, posisi, pesertaId){
+  const br = data.bracket[lombaId];
+  if(!br || !br.kelas[kelas]) return;
+  br.kelas[kelas].final.juara[posisi] = pesertaId || null;
+  syncAllJuaraToData(lombaId);
+  saveDataAndRender();
+}
+function syncAllJuaraToData(lombaId){
+  const br = data.bracket[lombaId];
+  if(!br) return;
+  const counts = { juara1:0, juara2:0, juara3:0 };
+  Object.values(br.kelas).forEach(bd=>{
+    const fj = bd.final.juara;
+    if(fj.juara1) counts.juara1++;
+    if(fj.juara2) counts.juara2++;
+    if(fj.juara3) counts.juara3++;
+  });
+  if(!data.juara[lombaId]) data.juara[lombaId] = {};
+  data.juara[lombaId]._anakCounts = counts;
+  const anyJ = counts.juara1||counts.juara2||counts.juara3;
+  if(anyJ){
+    data.juara[lombaId].juara1 = Object.values(br.kelas).map(bd=>bd.final.juara.juara1).filter(Boolean)[0]||null;
+    data.juara[lombaId].juara2 = Object.values(br.kelas).map(bd=>bd.final.juara.juara2).filter(Boolean)[0]||null;
+    data.juara[lombaId].juara3 = Object.values(br.kelas).map(bd=>bd.final.juara.juara3).filter(Boolean)[0]||null;
+  }
+}
+function mergeBereguKloters(lombaId){
+  const lomba = data.cabangLomba.find(l=>l.id===lombaId);
+  if(!lomba || lomba.tipe !== 'beregu') return;
+  const br = data.bracket[lombaId];
+  if(!br) return;
+  Object.values(br.kelas).forEach(bd=>{
+    if(bd.kloters.length > 1){
+      const peserta = [];
+      const lolos = [];
+      bd.kloters.forEach(k=>{
+        k.peserta.forEach(pid=>{ if(!peserta.includes(pid)) peserta.push(pid); });
+        k.lolos.forEach(pid=>{ if(!lolos.includes(pid)) lolos.push(pid); });
+      });
+      bd.kloters = [{ peserta, lolos, lolosMax: peserta.length }];
+    } else if(bd.kloters.length === 1){
+      bd.kloters[0].lolosMax = bd.kloters[0].peserta.length;
+    }
+  });
+}
+function renderBracket(l){
+  if(!data.bracket[l.id]) autoCreateBracket(l.id);
+  const before = JSON.stringify(data.bracket[l.id]);
+  syncBracketPeserta(l.id);
+  mergeBereguKloters(l.id);
+  if(JSON.stringify(data.bracket[l.id]) !== before) saveData();
+  const br = data.bracket[l.id];
+  if(!br) return '';
+  const isBeregu = l.tipe === 'beregu';
+  const pesertaAll = isBeregu ? getReguForLomba(l.id) : getPesertaForLomba(l.id);
+  const getP = (pid)=> pesertaAll.find(p=>p.id===pid) || {nama:'?',kelas:''};
+  const kelasKeys = Object.keys(br.kelas).sort((a,b)=> a==='Tanpa Kelas'?1:b==='Tanpa Kelas'?-1:a.localeCompare(b));
+  if(kelasKeys.length===0) return '';
+  let html = `<div style="margin-top:8px;">`;
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">`;
+  html += `<div style="font-size:12px;font-weight:800;color:var(--merah-tua);text-transform:uppercase;">${isBeregu?'👥':'⚽'} Bagan Penyisihan${isBeregu?' (Beregu)':''}</div>`;
+  html += `<button class="icon-btn del" onclick="resetBracket('${l.id}')" title="Hapus Bagan" style="width:24px;height:24px;font-size:11px;">🗑️</button>`;
+  html += `</div>`;
+  kelasKeys.forEach(kelas=>{
+    const bd = br.kelas[kelas];
+    html += `<div class="bracket-kelas">`;
+    html += `<div class="bracket-kelas-title">${isBeregu?'👥 Regu':'🎒 Kelas'} ${esc(kelas==='Peserta'?'Peserta':kelas)}</div>`;
+    html += `<div class="bracket-body">`;
+    html += `<div class="bracket-kloters">`;
+    if(isBeregu){
+      const allPeserta = bd.kloters[0] ? bd.kloters[0].peserta : [];
+      html += `<div class="kloter-card">`;
+      html += `<h5>Daftar Regu (${allPeserta.length})</h5>`;
+      if(allPeserta.length === 0){
+        html += `<div style="font-size:11.5px;color:var(--abu);padding:6px 2px;">Belum ada regu di kelas ini.</div>`;
+      }
+      allPeserta.forEach((pid,pi)=>{
+        const p = getP(pid);
+        const expanded = expandedRegu.has(pid);
+        html += `<div class="kloter-row" style="flex-wrap:wrap;cursor:default;${expanded?'border-bottom:none;':''}">`;
+        html += `<span class="kr-num">${pi+1}.</span>`;
+        html += `<span class="kr-name">${esc(p.nama)}</span>`;
+        html += `<span onclick="toggleReguDetail('${pid}', event)" style="font-size:10px;color:var(--merah-tua);font-weight:700;cursor:pointer;padding:2px 4px;margin-left:auto;">${expanded?'▲':'▼'}</span>`;
+        html += `</div>`;
+        if(expanded){
+          const anggotaNames = (p.anggota||[]).map(mid=>{const m=data.peserta.find(x=>x.id===mid); return m?esc(m.nama):null;}).filter(Boolean).join(', ');
+          html += `<div style="font-size:11px;color:var(--abu);padding:0 4px 6px 22px;width:100%;">${anggotaNames || 'Tidak ada anggota tercatat.'}</div>`;
+        }
+      });
+      html += `</div>`;
+    } else {
+      bd.kloters.forEach((k,ki)=>{
+        const maxL = k.lolosMax || bd.lolosPerKloter || 2;
+        html += `<div class="kloter-card">`;
+        html += `<h5>Kloter ${ki+1} <span style="font-weight:400;text-transform:none;color:${k.lolos.length>=maxL?'var(--hijau)':'var(--abu)'};">(${k.lolos.length}/${maxL})</span></h5>`;
+        k.peserta.forEach((pid,pi)=>{
+          const p = getP(pid);
+          const isLolos = k.lolos.includes(pid);
+          html += `<div class="kloter-row${isLolos?' lolos':''}" onclick="toggleKloterLolos('${l.id}','${esc(kelas)}',${ki},'${pid}')">`;
+          html += `<span class="kr-num">${pi+1}.</span>`;
+          html += `<span class="kr-name">${esc(p.nama)}</span>`;
+          if(isLolos) html += `<span class="kr-badge">✅</span>`;
+          html += `</div>`;
+        });
+        html += `</div>`;
+      });
+    }
+    html += `</div>`;
+    html += `<div class="bracket-final">`;
+    const satuKloter = bd.kloters.length === 1;
+    const allLolos = satuKloter ? bd.kloters[0].peserta : bd.final.peserta;
+    const fj = bd.final.juara;
+    html += `<div class="final-card">`;
+    html += `<h5>🏆 Final${satuKloter?(isBeregu?' (semua regu)':' (semua peserta)'):''}</h5>`;
+    if(allLolos.length >= 2){
+      const opts = (sel)=> `<option value="">-- pilih --</option>` + allLolos.map(pid=>{
+        const p = getP(pid);
+        return `<option value="${pid}" ${sel===pid?'selected':''}>${esc(p.nama)}</option>`;
+      }).join('');
+      html += `<div class="final-row"><span class="fr-medal">🥇</span><select onchange="setBracketJuara('${l.id}','${esc(kelas)}','juara1',this.value)">${opts(fj.juara1)}</select></div>`;
+      html += `<div class="final-row"><span class="fr-medal">🥈</span><select onchange="setBracketJuara('${l.id}','${esc(kelas)}','juara2',this.value)">${opts(fj.juara2)}</select></div>`;
+      html += `<div class="final-row"><span class="fr-medal">🥉</span><select onchange="setBracketJuara('${l.id}','${esc(kelas)}','juara3',this.value)">${opts(fj.juara3)}</select></div>`;
+    } else if(allLolos.length > 0){
+      html += `<div class="final-empty">centang ≥2 lolos</div>`;
+    } else {
+      html += `<div class="final-empty">centang nama di kloter</div>`;
+    }
+    html += `</div>`;
+    html += `</div>`;
+    html += `</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
 /* ============ JUARA ============ */
 let juaraFilter = 'semua';
 function renderJuaraFilterChips(){
@@ -792,29 +1664,74 @@ function renderJuara(){
   let lombas = data.cabangLomba;
   if(juaraFilter!=='semua') lombas = lombas.filter(l=>l.kategori===juaraFilter);
   if(lombas.length===0){
-    list.innerHTML = `<div class="empty"><span class="em">🏆</span>Belum ada cabang lomba untuk diberi juara.</div>`;
+    list.innerHTML = `<div class="empty"><span class="em">🏆</span>Belum ada cabang lomba.</div>`;
+    return;
+  }
+  const allPeserta = data.peserta;
+  const getP = (pid)=> allPeserta.find(p=>p.id===pid);
+  let hasAny = false;
+  lombas.forEach(l=>{
+    if(l.kategori==='anak'){
+      const br = data.bracket[l.id];
+      if(br) Object.values(br.kelas).forEach(bd=>{
+        const fj = bd.final.juara;
+        if(fj.juara1||fj.juara2||fj.juara3) hasAny = true;
+      });
+    } else {
+      const j = data.juara[l.id] || {};
+      if(j.juara1||j.juara2||j.juara3) hasAny = true;
+    }
+  });
+  if(!hasAny){
+    list.innerHTML = `<div class="empty"><span class="em">🏆</span>Belum ada juara yang ditentukan.<br>Atur di tab <b>Lomba</b>.</div>`;
     return;
   }
   list.innerHTML = lombas.map(l=>{
-    const peserta = getPesertaForLomba(l.id);
-    const j = data.juara[l.id] || {};
-    if(peserta.length===0){
-      return `<div class="juara-card">
-        <h4>${esc(l.nama)}</h4>
-        <div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span></div>
-        <div style="font-size:12px;color:var(--abu);">Belum ada peserta terdaftar di lomba ini.</div>
-      </div>`;
+    if(l.kategori==='anak'){
+      return renderJuaraAnak(l, getP);
     }
-    const options = (selected)=> `<option value="">-- pilih peserta --</option>` + peserta.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${esc(p.nama)}</option>`).join('');
+    const j = data.juara[l.id] || {};
+    if(!(j.juara1||j.juara2||j.juara3)) return '';
+    const isBeregu = l.tipe === 'beregu';
+    const getName = isBeregu
+      ? (id)=>{ const r = (data.regu||[]).find(x=>x.id===id); return r ? r.nama : '?'; }
+      : (id)=>{ const p = getP(id); return p ? p.nama : '?'; };
     return `<div class="juara-card">
       <h4>${esc(l.nama)}</h4>
-      <div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span></div>
-      <div class="medal-row"><span class="medal">🥇</span><select onchange="setJuara('${l.id}','juara1',this.value)">${options(j.juara1)}</select></div>
-      <div class="medal-row"><span class="medal">🥈</span><select onchange="setJuara('${l.id}','juara2',this.value)">${options(j.juara2)}</select></div>
-      <div class="medal-row"><span class="medal">🥉</span><select onchange="setJuara('${l.id}','juara3',this.value)">${options(j.juara3)}</select></div>
-      <div class="saved-tag" id="saved-${l.id}">✓ Tersimpan</div>
+      <div class="kel"><span class="badge ${KATEGORI_CLASS[l.kategori]}">${KATEGORI_LABEL[l.kategori]}${l.kelompok? ' · '+esc(l.kelompok):''}</span> ${isBeregu?'<span class="badge beregu">Beregu</span>':''}</div>
+      ${j.juara1 ? `<div class="medal-row"><span class="medal">🥇</span><span style="font-weight:700;font-size:14px;">${esc(getName(j.juara1))}</span></div>` : ''}
+      ${j.juara2 ? `<div class="medal-row"><span class="medal">🥈</span><span style="font-weight:600;font-size:14px;">${esc(getName(j.juara2))}</span></div>` : ''}
+      ${j.juara3 ? `<div class="medal-row"><span class="medal">🥉</span><span style="font-weight:600;font-size:14px;">${esc(getName(j.juara3))}</span></div>` : ''}
     </div>`;
-  }).join('');
+  }).filter(Boolean).join('');
+}
+function renderJuaraAnak(l, getP){
+  const br = data.bracket[l.id];
+  if(!br) return '';
+  const isBeregu = l.tipe === 'beregu';
+  const getReguP = (rid)=> (data.regu||[]).find(r=>r.id===rid) || {nama:'?'};
+  const kelasKeys = Object.keys(br.kelas).sort((a,b)=> a==='Tanpa Kelas'?1:b==='Tanpa Kelas'?-1:a.localeCompare(b));
+  const hasAnyKelas = kelasKeys.some(k=>{
+    const fj = br.kelas[k].final.juara;
+    return fj.juara1||fj.juara2||fj.juara3;
+  });
+  if(!hasAnyKelas) return '';
+  let html = `<div class="juara-card">`;
+  html += `<h4>${esc(l.nama)}</h4>`;
+  html += `<div class="kel"><span class="badge anak">Anak-anak</span> ${isBeregu?'<span class="badge beregu">Beregu</span>':''}</div>`;
+  kelasKeys.forEach(kelas=>{
+    const fj = br.kelas[kelas].final.juara;
+    if(!(fj.juara1||fj.juara2||fj.juara3)) return;
+    const getName = isBeregu
+      ? (id)=>{ const r = getReguP(id); return r.nama; }
+      : (id)=>{ const p = getP(id); return p ? p.nama : '?'; };
+    html += `<div style="font-size:11px;font-weight:800;color:var(--merah-tua);text-transform:uppercase;margin:8px 0 4px;">Kelas ${esc(kelas)}</div>`;
+    if(fj.juara1) html += `<div class="medal-row"><span class="medal">🥇</span><span style="font-weight:700;font-size:14px;">${esc(getName(fj.juara1))}</span></div>`;
+    if(fj.juara2) html += `<div class="medal-row"><span class="medal">🥈</span><span style="font-weight:600;font-size:14px;">${esc(getName(fj.juara2))}</span></div>`;
+    if(fj.juara3) html += `<div class="medal-row"><span class="medal">🥉</span><span style="font-weight:600;font-size:14px;">${esc(getName(fj.juara3))}</span></div>`;
+  });
+  html += `</div>`;
+  return html;
 }
 function setJuara(lombaId, posisi, pesertaId){
   if(!data.juara[lombaId]) data.juara[lombaId] = {};
@@ -976,6 +1893,10 @@ function importData(e){
       if(!data.hadiahConfig) data.hadiahConfig = {};
       if(!data.hadiahGlobal) data.hadiahGlobal = defaultHadiahGlobal();
       if(!data.lombaExclusions) data.lombaExclusions = {};
+      if(!data.lombaLolos) data.lombaLolos = {};
+      if(!data.bracket) data.bracket = {};
+      if(!data.regu) data.regu = [];
+      data.cabangLomba.forEach(l=>{ if(!l.tipe) l.tipe = 'perorangan'; });
       saveDataAndRender();
       toast('Data berhasil diimpor');
       renderAll();
@@ -987,10 +1908,10 @@ function importData(e){
 function resetAllData(){
   if(!confirm('Yakin hapus SEMUA data (peserta, lomba, kas, juara)? Tindakan ini tidak bisa dibatalkan.')) return;
   if(!confirm('Konfirmasi sekali lagi: hapus semua data sekarang?')) return;
-  data = { cabangLomba: [], peserta: [], transaksi: [], juara: {}, hadiahConfig: {}, hadiahGlobal: defaultHadiahGlobal(), lombaExclusions: {} };
+  data = emptyData();
+  data.cabangLomba = seedCabangLomba();
   saveDataAndRender();
   toast('Semua data dihapus');
-  renderAll();
 }
 
 /* ============ UTIL ============ */
@@ -999,31 +1920,22 @@ function esc(s){
 }
 
 /* ============ INIT ============ */
-document.getElementById('kas-tanggal').valueAsDate = new Date();
-document.getElementById('peserta-kelas-wrap').style.display = 'block';
-renderAll();
-
 (async function(){
-  if(!sbClient){ updateSyncStatus(); return; }
-  try{
-    const { data: row, error } = await sbClient
-      .from('lomba_data')
-      .select('payload')
-      .eq('id', DATA_ROW_ID)
-      .maybeSingle();
-    if(error){ console.warn('Supabase load error', error); }
-    if(row && row.payload){
-      data = row.payload;
-      normalizeData();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      online = true;
-      renderAll();
-    } else {
-      saveDataAndRender();
-    }
-  }catch(e){ console.warn('Supabase init failed', e); }
+  document.getElementById('kas-tanggal').valueAsDate = new Date();
+  document.getElementById('peserta-kelas-wrap').style.display = 'block';
+  const ghInput = document.getElementById('gh-token-input');
+  if(ghInput && ghToken) ghInput.value = ghToken;
+  await loadFromServer();
+  renderAll();
   updateSyncStatus();
 })();
+
+window.addEventListener('beforeunload', function(){
+  if(ghToken && ghSha && (data.peserta.length > 0 || data.transaksi.length > 0 || data.cabangLomba.length > 0)){
+    const rawJson = JSON.stringify(data,null,2);
+    ghGitSave(rawJson).catch(function(){});
+  }
+});
 </script>
 </body>
 </html>
